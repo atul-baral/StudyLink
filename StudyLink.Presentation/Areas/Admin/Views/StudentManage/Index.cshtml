@@ -1,0 +1,130 @@
+﻿@model IEnumerable<StudyLink.Domain.Entities.Student>
+
+@{
+    ViewData["Title"] = "Students";
+}
+
+<h2>Student List</h2>
+
+<div id="studentDataGrid" class="table-responsive table-bordered table-striped table-hover"></div>
+
+<div id="deletePopup" class="dx-popup" style="display:none;">
+    <div class="dx-popup-content">
+        <p>Are you sure you want to delete this student?</p>
+        <form id="deleteForm" method="post" asp-area="Admin" asp-controller="StudentManage" asp-action="Delete">
+            <input type="hidden" id="StudentID" name="StudentID" />
+            <div class="dx-popup-buttons">
+                <button type="submit" id="confirmDeleteBtn" class="dx-button">Yes</button>
+                <button type="button" id="cancelDeleteBtn" class="dx-button">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var students = @Html.Raw(Json.Serialize(Model));
+        var selectedStudentId = null;
+
+        var deletePopup = $("#deletePopup").dxPopup({
+            title: "Delete Confirmation",
+            visible: false,
+            dragEnabled: true,
+            closeOnOutsideClick: true,
+            width: 315,
+            height: 210,
+            onHiding: function () {
+                selectedStudentId = null;
+            }
+        }).dxPopup("instance");
+
+        $("#studentDataGrid").dxDataGrid({
+            dataSource: students,
+            columns: [
+                {
+                    dataField: "firstName",
+                    caption: "First Name"
+                },
+                {
+                    dataField: "lastName",
+                    caption: "Last Name"
+                },
+                {
+                    dataField: "address",
+                    caption: "Address"
+                },
+                {
+                    caption: "Actions",
+                    type: "buttons",
+                    buttons: [
+                        {
+                            icon: "bi bi-pencil",
+                            onClick: function (e) {
+                                var studentId = e.row.data.studentID;
+                                window.location.href = '@Url.Action("Edit", "StudentManage", new { area = "Admin" })/' + studentId;
+                            },
+                            cssClass: "fs-6 text-success mx-1"
+                        },
+                        {
+                            icon: "bi bi-trash",
+                            onClick: function (e) {
+                                  deletePopup.show();
+                                  $("#StudentID").val(e.row.data.studentID);
+                            },
+                            cssClass: "fs-6 text-danger mx-1"
+                        }
+                    ]
+                }
+            ],
+            paging: {
+                pageSize: 5
+            },
+            pager: {
+                visible: true,
+                showPageSizeSelector: true,
+                allowedPageSizes: [5, 10, 15],
+                showNavigationButtons: true,
+                displayMode: "compact"
+            },
+            toolbar: {
+                items: [
+                    {
+                        widget: "dxButton",
+                        options: {
+                            text: "Add Student",
+                            icon: "bi bi-plus-circle",
+                            elementAttr: {
+                               style: "background-color: #007bff !important; color: white;"
+                            },
+                            iconCssClass: "text-white",
+                            onClick: function () {
+                                window.location.href = '@Url.Action("Create", "StudentManage", new { area = "Admin" })';
+                            }
+                        },
+                        location: "before"
+                    },
+                    {
+                        name: "searchPanel",
+                        location: "after"
+                    }
+                ]
+            },
+            searchPanel: {
+                visible: true,
+                width: 200,
+                placeholder: "Search..."
+            },
+            filterRow: {
+                visible: false
+            },
+            onContentReady: function () {
+                $(".dx-gridbase-a11y-status-container").hide();
+            }
+        });
+
+        $(document).on("click", "#cancelDeleteBtn", function () {
+            deletePopup.hide();
+        });
+
+    </script>
+}

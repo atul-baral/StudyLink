@@ -1,0 +1,21 @@
+﻿@model IEnumerable<StudyLink.Domain.Entities.Subject>
+
+
+@if (Model.Any())
+{
+    <ul>
+        <li><a asp-area="Teacher" asp-controller="Home" asp-action="Index">Home</a></li>
+        @foreach (var subject in Model)
+        {
+            <li>
+                <a asp-area="Teacher" asp-controller="Subject" asp-action="Details" asp-route-id="@subject.SubjectId">
+                    @subject.SubjectName (@subject.SubjectCode)
+                </a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No subjects assigned.</p>
+}

@@ -1,0 +1,32 @@
+﻿<script>
+    $(document).ready(function () {
+        $("#drawer").dxDrawer({
+            opened: true,
+            openedStateMode: "shrink",
+            position: "left",
+            revealMode: "expand",
+            shading: false,
+            template: function () {
+                return $("<div>").addClass("dx-theme-background-color")
+                    .append(
+                        $("<div>").dxList({
+                            dataSource: [
+                                { text: "Home", icon: "bi-house-door", url: "@Url.Action("Index", "Home", new { area = "" })" },
+                                { text: "Students", icon: "bi-person", url: "@Url.Action("Index", "StudentManage", new { area = "Admin" })" },
+                                { text: "Teachers", icon: "bi-person-lines-fill", url: "@Url.Action("Index", "TeacherManage", new { area = "Admin" })" },
+                                { text: "Subjects", icon: "bi-book", url: "@Url.Action("Index", "SubjectManage", new { area = "Admin" })" },
+                                { text: "Privacy", icon: "bi-shield-lock", url: "@Url.Action("Privacy", "Home", new { area = "" })" }
+                            ],
+                            itemTemplate: function (data) {
+                                return $("<a>")
+                                    .attr("href", data.url)
+                                    .addClass("dx-item-content")
+                                    .append($("<i>").addClass(data.icon + " me-2"))
+                                    .append(data.text);
+                            }
+                        })
+                    );
+            }
+        });
+    });
+</script>

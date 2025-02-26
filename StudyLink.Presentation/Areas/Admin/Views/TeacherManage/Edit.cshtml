@@ -1,0 +1,95 @@
+﻿@model StudyLink.Application.ViewModels.AddTeacherVM
+
+@{
+    ViewData["Title"] = "Edit Teacher";
+}
+
+<h2>Edit Teacher</h2>
+
+<form asp-area="Admin" asp-controller="TeacherManage" asp-action="Edit" id="form-container" method="post">
+    <input type="hidden" name="TeacherId" value="@Model.TeacherId" />
+    <input type="hidden" name="TeacherSubjects.TeacherId" value="@Model.TeacherId" />
+    <div id="form"></div>
+    <div id="subjectFields"></div>
+</form>
+
+@section Scripts {
+    <script>
+        var subjectList = @Html.Raw(Json.Serialize(ViewBag.SubjectList.Items));
+        var teacherSubjects = @Html.Raw(Json.Serialize(Model.TeacherSubjects));
+
+        $("#form").dxForm({
+            labelLocation: "top",
+            showColonAfterLabel: false,
+            formData: {
+                FirstName: "@Model.FirstName",
+                LastName: "@Model.LastName",
+                Address: "@Model.Address",
+                Email: "@Model.Email",
+                TeacherSubjects: teacherSubjects.map(ss => ({ SubjectId: ss.SubjectId }))
+            },
+            items: [
+                {
+                    itemType: "group",
+                    caption: "Teacher Information",
+                    colCount: 2,
+                    items: [
+                        { dataField: "FirstName", label: { text: "First Name" }, isRequired: true },
+                        { dataField: "LastName", label: { text: "Last Name" }, isRequired: true },
+                        { dataField: "Address", label: { text: "Address" }, isRequired: true },
+                        { dataField: "Email", label: { text: "Email" }, isRequired: true },
+                    ]
+                },
+                {
+                    itemType: "group",
+                    caption: "Subject Information",
+                    colCount: 2,
+                    items: subjectList.map((subject, index) => {
+                        var isChecked = teacherSubjects.some(s => s.subjectId === subject.subjectId);
+
+                        return {
+                            editorType: "dxCheckBox",
+                            editorOptions: {
+                                text: subject.subjectName,
+                                value: isChecked,
+                                elementAttr: {
+                                    id: `${subject.subjectId}`
+                                }
+                            }
+                        };
+                    })
+                },
+                {
+                    itemType: "button",
+                    horizontalAlignment: "center",
+                    buttonOptions: {
+                        text: "Submit",
+                        type: "success",
+                        useSubmitBehavior: true,
+                                               onClick: function () {
+                            var selectedSubjects = [];
+
+                            $("#form").find(".dx-checkbox").each(function () {
+                                var checkbox = $(this).dxCheckBox("instance");
+                                if (checkbox.option("value")) {
+                                    var subjectId = $(this).attr("id");
+                                    selectedSubjects.push({ SubjectId: subjectId });
+                                }
+                            });
+
+                            $("#subjectFields").empty();
+                            selectedSubjects.forEach((subject, index) => {
+                                $("#subjectFields").append(`<input type="hidden" name="TeacherSubjects[${index}].SubjectId" value="${subject.SubjectId}" />`);
+                            });
+
+                            if ($("#form").dxForm("instance").validate().isValid) {
+                               $("#form-container").submit();
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+    </script>
+}

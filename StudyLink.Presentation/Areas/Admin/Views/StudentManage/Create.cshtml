@@ -1,0 +1,87 @@
+﻿@model StudyLink.Domain.Entities.Student
+
+@{
+    ViewData["Title"] = "Add Student";
+}
+
+<h2>Add Student</h2>
+
+<form asp-area="Admin" asp-controller="StudentManage" asp-action="Create" id="form-container" method="post">
+    <div id="form"></div>
+    <div id="subjectFields"></div>
+</form>
+
+@section Scripts {
+    <script>
+        var subjectList = @Html.Raw(Json.Serialize(ViewBag.SubjectList.Items));
+
+        $("#form").dxForm({
+            labelLocation: "top",
+            showColonAfterLabel: false,
+            formData: {
+                FirstName: "",
+                LastName: "",
+                Address: "",
+                StudentSubjects: []
+            },
+            items: [
+                {
+                    itemType: "group",
+                    caption: "Student Information",
+                    colCount: 2,
+                    items: [
+                        { dataField: "FirstName", label: { text: "First Name" }, isRequired: true },
+                        { dataField: "LastName", label: { text: "Last Name" }, isRequired: true },
+                        { dataField: "Address", label: { text: "Address" }, isRequired: true },
+                        { dataField: "Email", label: { text: "Email" }, isRequired: true },
+                    ]
+                },
+                {
+                    itemType: "group",
+                    caption: "Subject Information",
+                    colCount: 2,
+                    items: subjectList.map(subject => ({
+                        editorType: "dxCheckBox",
+                        // label: { text: subject.subjectName },
+                        editorOptions: {
+                            text: subject.subjectName,
+                            value: false,
+                            elementAttr: {
+                                id: `${subject.subjectID}`
+                            }
+                        }
+                    }))
+                },
+                {
+                    itemType: "button",
+                    horizontalAlignment: "center",
+                    buttonOptions: {
+                        text: "Submit",
+                        type: "success",
+                        useSubmitBehavior: true,
+                        onClick: function () {
+                            var selectedSubjects = [];
+
+                            $("#form").find(".dx-checkbox").each(function () {
+                                var checkbox = $(this).dxCheckBox("instance");
+                                if (checkbox.option("value")) {
+                                    var subjectID = $(this).attr("id");
+                                    selectedSubjects.push({ SubjectID: subjectID });
+                                }
+                            });
+
+                            $("#subjectFields").empty();
+                            selectedSubjects.forEach((subject, index) => {
+                                $("#subjectFields").append(`<input type="hidden" name="StudentSubjects[${index}].SubjectID" value="${subject.SubjectID}" />`);
+                            });
+
+                            if ($("#form").dxForm("instance").validate().isValid) {
+                                $("#form-container").submit();
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+    </script>
+}
