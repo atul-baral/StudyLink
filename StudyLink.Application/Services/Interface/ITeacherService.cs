@@ -15,6 +15,7 @@ namespace StudyLink.Application.Services.Interface
         Task AddTeacherAsync(AddTeacherVM teacherSubject);
         Task UpdateTeacherAsync(AddTeacherVM teacherSubject);
         Task DeleteTeacherAsync(int id);
-        Task<Teacher> GetTeacherByUserIdAsync(string userId);
+        Task<Teacher> GetTeacherByUserIdForSubjectsAsync(string userId);
+        Task<int?> GetTeacherIdByUserIdAsync(string userId);
     }
 }

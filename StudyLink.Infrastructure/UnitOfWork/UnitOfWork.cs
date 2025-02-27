@@ -15,6 +15,8 @@ namespace StudyLink.Infrastructure
         public IStudentSubjectRepository StudentSubjects { get; private set; }
         public ITeacherSubjectRepository TeacherSubjects { get; private set; }
         public IQuestionTypeRepository QuestionTypes { get; private set; }
+        public IQuestionRepository Questions { get; private set; }
+        public IChoiceRepository Choices { get; private set; }
 
         public UnitOfWork(StudyLinkDbContext context)
         {
@@ -25,6 +27,8 @@ namespace StudyLink.Infrastructure
             StudentSubjects = new StudentSubjectRepository(_context);
             TeacherSubjects = new TeacherSubjectRepository(_context);
             QuestionTypes = new QuestionTypeRepository(_context);
+            Questions = new QuestionRepository(_context);
+            Choices = new ChoiceRepository(_context);
         }
 
         public async Task<int> CompleteAsync()

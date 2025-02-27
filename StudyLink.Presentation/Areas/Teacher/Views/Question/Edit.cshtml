@@ -1,0 +1,103 @@
+﻿@model StudyLink.Domain.Entities.Question
+
+@{
+    ViewData["Title"] = "Edit Question";
+}
+
+<h2>Edit Question</h2>
+
+<form asp-area="Teacher" asp-action="Edit" method="post" id="form-container">
+    <input type="hidden" asp-for="QuestionId" />
+    <input type="hidden" asp-for="QuestionTypeId" />
+    <input type="hidden" asp-for="SubjectId" />
+    <input type="hidden" asp-for="TeacherId" />
+    <div id="form"></div>
+    <div id="choicesFields"></div>
+</form>
+
+@section Scripts {
+    <script>
+        let modelChoices = @Html.Raw(Json.Serialize(Model.Choices));
+
+        let choices = modelChoices.map((choice, index) => ({
+            id: choice.choiceId || index + 1, 
+            text: choice.choiceText || "", 
+            isCorrect: choice.isCorrect || false
+        }));
+
+        $("#form").dxForm({
+            labelLocation: "top",
+            showColonAfterLabel: false,
+            formData: {
+                questionText: "@Html.Raw(Model.QuestionText)",
+                correctAnswer: choices.find(c => c.isCorrect)?.id,
+                choices: choices
+            },
+            items: [
+                {
+                    itemType: "group",
+                    caption: "Question Information",
+                    colCount: 1,
+                    items: [
+                        { dataField: "questionText", editorType: "dxTextBox", isRequired: true }
+                    ]
+                },
+                {
+                    itemType: "group",
+                    caption: "Choices",
+                    colCount: 2,
+                    items: choices.map((choice, index) => ({
+                        dataField: `choices[${index}].text`,
+                        editorType: "dxTextBox",
+                        label: { text: `Choice ${String.fromCharCode(65 + index)}` }, 
+                        isRequired: true
+                    }))
+                },
+                {
+                    dataField: "correctAnswer",
+                    editorType: "dxRadioGroup",
+                    editorOptions: {
+                        items: choices.map(choice => ({
+                            id: choice.id,
+                            text: `Choice ${String.fromCharCode(65 + choices.indexOf(choice))}`
+                        })),
+                        valueExpr: "id",
+                        displayExpr: "text",
+                        layout: "horizontal"
+                    },
+                    label: { text: "Correct Answer" },
+                    isRequired: true
+                },
+                {
+                    itemType: "button",
+                    horizontalAlignment: "center",
+                    buttonOptions: {
+                        text: "Update",
+                        useSubmitBehavior: true,
+                        onClick: function () {
+                            let formData = $("#form").dxForm("instance").option("formData");
+
+                            let choicesData = choices.map((choice, index) => ({
+                                choiceId: choice.id,
+                                choiceText: formData.choices[index].text,
+                                isCorrect: formData.correctAnswer == choice.id
+                            }));
+
+                            $("#choicesFields").empty();
+                            choicesData.forEach((choice, index) => {
+                                $("#choicesFields").append(`<input type="hidden" name="choices[${index}].choiceId" value="${choice.choiceId}" />`);
+                                $("#choicesFields").append(`<input type="hidden" name="choices[${index}].choiceText" value="${choice.choiceText}" />`);
+                                $("#choicesFields").append(`<input type="hidden" name="choices[${index}].isCorrect" value="${choice.isCorrect}" />`);
+                            });
+
+                            if ($("#form").dxForm("instance").validate().isValid) {
+                                $("#form-container").submit();
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+    </script>
+}
+

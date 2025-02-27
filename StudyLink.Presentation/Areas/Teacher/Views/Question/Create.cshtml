@@ -26,7 +26,7 @@
             formData: {
                 QuestionText: "",
                 CorrectAnswer: "",
-                Choices: []
+                Choices: choices // Directly initialize Choices here
             },
             items: [
                 {
@@ -41,8 +41,8 @@
                     itemType: "group",
                     caption: "Choices",
                     colCount: 2,
-                    items: choices.map(choice => ({
-                        dataField: `Choices[${choice.id}].ChoiceText`, // Bind Choices as an array
+                    items: choices.map((choice, index) => ({
+                        dataField: `Choices[${index}].ChoiceText`, // Use indexed binding for choices
                         editorType: "dxTextBox",
                         label: { text: `Choice ${choice.id}` },
                         isRequired: true
@@ -67,19 +67,24 @@
                         text: "Submit",
                         useSubmitBehavior: true,
                         onClick: function () {
-                            // Collect choice data into hidden inputs
-                            let choicesData = choices.map(choice => ({
-                                ChoiceText: $("#form").dxForm("instance").option("formData")[`Choices[${choice.id}].ChoiceText`],
-                                IsCorrect: $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.id
-                            }));
+                                    let choicesData = [];
+                                            choices.forEach((choice, index) => {
+                                                let choiceText = $("#form").find(`input[name="Choices[${index}].ChoiceText"]`).val();
+                                                let isCorrect = $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.id;
 
-                            $("#choicesFields").empty();
-                            choicesData.forEach((choice, index) => {
-                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
-                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
-                            });
+                                                choicesData.push({
+                                                    ChoiceText: choiceText,
+                                                    IsCorrect: isCorrect
+                                                });
+                                            });
 
-                            // If the form is valid, submit the form
+                                            $("#choicesFields").empty();
+                                            choicesData.forEach((choice, index) => {
+                                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
+                                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
+                                            });
+
+
                             if ($("#form").dxForm("instance").validate().isValid) {
                                 $("#form-container").submit();
                             }

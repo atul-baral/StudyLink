@@ -140,6 +140,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xIb21lXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Teacher/Views/Question/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xRdWVzdGlvblxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Teacher/Views/Question/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xRdWVzdGlvblxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Teacher/Views/Question/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xRdWVzdGlvblxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Teacher/Views/Question/QuestionTypes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xRdWVzdGlvblxRdWVzdGlvblR5cGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Teacher/Views/Shared/Components/TeacherSubjects/Default.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVGVhY2hlclxWaWV3c1xTaGFyZWRcQ29tcG9uZW50c1xUZWFjaGVyU3ViamVjdHNcRGVmYXVsdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

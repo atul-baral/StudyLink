@@ -21,14 +21,22 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<StudyLinkDbContext>()
     .AddDefaultTokenProviders();
-
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IQuestionTypeService, QuestionTypeService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -40,6 +48,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -72,13 +81,19 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     string email = "admin@gmail.com";
     string password = "Admin@1234";
+    string firstName = "Admin";
+    string lastName = "Admin";
+    string address = "Kathmandu";
     var result = await userManager.FindByEmailAsync(email);
     if (result== null)
     {
         var user = new ApplicationUser
         {
             UserName = email,
-            Email = email
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            Address = address
         };
 
         var createResult = await userManager.CreateAsync(user, password);
