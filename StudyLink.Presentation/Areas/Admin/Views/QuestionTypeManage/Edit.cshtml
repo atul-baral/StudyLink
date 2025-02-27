@@ -1,0 +1,39 @@
+﻿@model StudyLink.Domain.Entities.QuestionType
+
+@{
+    ViewData["Title"] = "Add Question Type";
+}
+
+<h2>Edit QuestionType</h2>
+
+<form asp-area="Admin" asp-area="QuestionTypeManage" asp-action="Edit" id="form-container" method="post">
+    <input type="hidden" name="questionTypeId" value="@Model.QuestionTypeId" />
+
+    <div id="form"></div>
+</form>
+@section Scripts {
+    <script>
+        $("#form").dxForm({
+            id: "form",
+            labelLocation: "top",
+            showColonAfterLabel: false,
+            formData: @Html.Raw(Json.Serialize(Model)),
+            items: [{
+                itemType: "group",
+                caption: "Question Type Information",
+                colCount: 2,
+                items: [
+                    { dataField: "typeName", isRequired: true }
+                ]
+            }, {
+                itemType: "button",
+                horizontalAlignment: "center",
+                buttonOptions: {
+                    text: "Submit",
+                    useSubmitBehavior: true
+                }
+            }]
+        });
+    </script>
+}
+

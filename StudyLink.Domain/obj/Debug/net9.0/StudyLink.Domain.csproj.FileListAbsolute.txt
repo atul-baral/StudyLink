@@ -12,3 +12,4 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Domain\obj\Debug\net9.0\refint
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Domain\obj\Debug\net9.0\StudyLink.Domain.pdb
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Domain\obj\Debug\net9.0\StudyLink.Domain.genruntimeconfig.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Domain\obj\Debug\net9.0\ref\StudyLink.Domain.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Domain\obj\Debug\net9.0\StudyLink.Domain.sourcelink.json

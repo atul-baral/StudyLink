@@ -12,6 +12,7 @@ public class StudyLinkDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<StudentSubject> StudentSubjects { get; set; }
     public DbSet<TeacherSubject> TeacherSubjects { get; set; }
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<QuestionType> QuestionTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

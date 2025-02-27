@@ -13,3 +13,4 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Application\obj\Debug\net9.0\S
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Application\obj\Debug\net9.0\refint\StudyLink.Application.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Application\obj\Debug\net9.0\StudyLink.Application.pdb
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Application\obj\Debug\net9.0\ref\StudyLink.Application.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Application\obj\Debug\net9.0\StudyLink.Application.sourcelink.json

@@ -21,6 +21,9 @@ namespace StudyLink.Domain.Entities
         [ForeignKey(nameof(Teacher))]
         public int TeacherId { get; set; }
 
+        [ForeignKey(nameof(QuestionType))]
+        public int QuestionTypeId { get; set; }
+
         public string QuestionText { get; set; }
         public bool IsDeleted { get; set; } = false;
 
@@ -29,6 +32,9 @@ namespace StudyLink.Domain.Entities
 
         [ValidateNever]
         public Teacher Teacher { get; set; }
+
+        [ValidateNever]
+        public QuestionType QuestionType { get; set; }
 
         [JsonIgnore]
         public ICollection<Choice> Choices { get; set; }

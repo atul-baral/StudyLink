@@ -429,3 +429,4 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Teacher\Views\Shared\_Layout.cshtml.rz.scp.css
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\qabviixa8z-0qr026bdwp.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\2u96eyuvbh-0qr026bdwp.gz
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.sourcelink.json

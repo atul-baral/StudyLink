@@ -13,6 +13,7 @@ namespace StudyLink.Application.Interfaces
         ITeacherRepository Teachers { get; }
         IStudentSubjectRepository StudentSubjects { get; }
         ITeacherSubjectRepository TeacherSubjects { get; }
+        IQuestionTypeRepository QuestionTypes { get; }
         Task<int> CompleteAsync(); 
     }
 }
