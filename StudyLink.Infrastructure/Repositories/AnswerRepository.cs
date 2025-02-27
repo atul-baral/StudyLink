@@ -9,18 +9,18 @@ using StudyLink.Infrastructure.Repository;
 
 namespace StudyLink.Infrastructure.Repositories
 {
-    public class ChoiceRepository : Repository<Choice>, IChoiceRepository
+    public class AnswerRepository : Repository<Answer>, IAnswerRepository
     {
         private readonly StudyLinkDbContext _context;
 
-        public ChoiceRepository(StudyLinkDbContext context) : base(context)
+        public AnswerRepository(StudyLinkDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task UpdateAsync(Choice choice)
+        public async Task UpdateAsync(Answer answer)
         {
-            _context.Choices.Update(choice);
+             _context.Answers.Update(answer);
         }
     }
 }

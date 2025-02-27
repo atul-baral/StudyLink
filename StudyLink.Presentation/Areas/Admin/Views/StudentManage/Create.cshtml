@@ -1,85 +1,80 @@
-﻿@model StudyLink.Domain.Entities.Question
+﻿@model StudyLink.Domain.Entities.Student
 
 @{
-    ViewData["Title"] = "Add Question";
+    ViewData["Title"] = "Add Student";
 }
 
-<h2>Add Question</h2>
+<h2>Add Student</h2>
 
-<form asp-area="Teacher" asp-action="Create" method="post" id="form-container">
+<form asp-area="Admin" asp-controller="StudentManage" asp-action="Create" id="form-container" method="post">
     <div id="form"></div>
-    <div id="choicesFields"></div>
+    <div id="subjectFields"></div>
 </form>
 
 @section Scripts {
     <script>
-        let choices = [
-            { id: "A", text: "" },
-            { id: "B", text: "" },
-            { id: "C", text: "" },
-            { id: "D", text: "" }
-        ];
+        var subjectList = @Html.Raw(Json.Serialize(ViewBag.SubjectList.Items));
 
         $("#form").dxForm({
             labelLocation: "top",
             showColonAfterLabel: false,
             formData: {
-                QuestionText: "",
-                CorrectAnswer: "",
-                Choices: []
+                FirstName: "",
+                LastName: "",
+                Address: "",
+                StudentSubjects: []
             },
             items: [
                 {
                     itemType: "group",
-                    caption: "Question Information",
-                    colCount: 1,
+                    caption: "Student Information",
+                    colCount: 2,
                     items: [
-                        { dataField: "QuestionText", editorType: "dxTextBox", isRequired: true }
+                        { dataField: "FirstName", label: { text: "First Name" }, isRequired: true },
+                        { dataField: "LastName", label: { text: "Last Name" }, isRequired: true },
+                        { dataField: "Address", label: { text: "Address" }, isRequired: true },
+                        { dataField: "Email", label: { text: "Email" }, isRequired: true },
                     ]
                 },
                 {
                     itemType: "group",
-                    caption: "Choices",
+                    caption: "Subject Information",
                     colCount: 2,
-                    items: choices.map(choice => ({
-                        dataField: `Choices[${choice.id}].ChoiceText`, // Bind Choices as an array
-                        editorType: "dxTextBox",
-                        label: { text: `Choice ${choice.id}` },
-                        isRequired: true
+                    items: subjectList.map(subject => ({
+                        editorType: "dxCheckBox",
+                        // label: { text: subject.subjectName },
+                        editorOptions: {
+                            text: subject.subjectName,
+                            value: false,
+                            elementAttr: {
+                                id: `${subject.subjectId}`
+                            }
+                        }
                     }))
-                },
-                {
-                    dataField: "CorrectAnswer",
-                    editorType: "dxRadioGroup",
-                    editorOptions: {
-                        items: choices.map(choice => ({ id: choice.id, text: `Choice ${choice.id}` })),
-                        valueExpr: "id",
-                        displayExpr: "text",
-                        layout: "horizontal"
-                    },
-                    label: { text: "Correct Answer" },
-                    isRequired: true
                 },
                 {
                     itemType: "button",
                     horizontalAlignment: "center",
                     buttonOptions: {
                         text: "Submit",
+                        type: "success",
                         useSubmitBehavior: true,
                         onClick: function () {
-                            // Collect choice data into hidden inputs
-                            let choicesData = choices.map(choice => ({
-                                ChoiceText: $("#form").dxForm("instance").option("formData")[`Choices[${choice.id}].ChoiceText`],
-                                IsCorrect: $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.id
-                            }));
+                            var selectedSubjects = [];
 
-                            $("#choicesFields").empty();
-                            choicesData.forEach((choice, index) => {
-                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
-                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
+                            $("#form").find(".dx-checkbox").each(function () {
+                                var checkbox = $(this).dxCheckBox("instance");
+                                if (checkbox.option("value")) {
+                                    var subjectId = $(this).attr("id");
+                                    selectedSubjects.push({ SubjectId: subjectId });
+                                }
                             });
 
-                            // If the form is valid, submit the form
+                            $("#subjectFields").empty();
+                            selectedSubjects.forEach((subject, index) => {
+                                $("#subjectFields").append(`<input type="hidden" name="StudentSubjects[${index}].SubjectId" value="${subject.SubjectId}" />`);
+                            });
+
                             if ($("#form").dxForm("instance").validate().isValid) {
                                 $("#form-container").submit();
                             }

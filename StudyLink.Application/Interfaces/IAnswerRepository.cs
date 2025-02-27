@@ -7,8 +7,8 @@ using StudyLink.Domain.Entities;
 
 namespace StudyLink.Application.Interfaces
 {
-    public interface ITeacherSubjectRepository: IRepository<TeacherSubject>
+    public interface IAnswerRepository: IRepository<Answer>
     {
-        Task UpdateAsync(TeacherSubject teacherSubject);
+        Task UpdateAsync(Answer answer);
     }
 }

@@ -12,7 +12,7 @@
     <div class="dx-popup-content">
         <p>Are you sure you want to delete this teacher?</p>
         <form id="deleteForm" method="post" asp-area="Admin" asp-controller="TeacherManage" asp-action="Delete">
-            <input type="hidden" id="TeacherID" name="TeacherID" />
+            <input type="hidden" id="TeacherId" name="TeacherId" />
             <div class="dx-popup-buttons">
                 <button type="submit" id="confirmDeleteBtn" class="dx-button">Yes</button>
                 <button type="button" id="cancelDeleteBtn" class="dx-button">Cancel</button>
@@ -60,7 +60,7 @@
                         {
                             icon: "bi bi-pencil",
                             onClick: function (e) {
-                                var teacherId = e.row.data.teacherID;
+                                var teacherId = e.row.data.teacherId;
                                 window.location.href = '@Url.Action("Edit", "TeacherManage", new { area = "Admin" })/' + teacherId;
                             },
                             cssClass: "fs-6 text-success mx-1"
@@ -69,7 +69,7 @@
                             icon: "bi bi-trash",
                             onClick: function (e) {
                                   deletePopup.show();
-                                  $("#TeacherID").val(e.row.data.teacherID);
+                                  $("#TeacherId").val(e.row.data.teacherId);
                             },
                             cssClass: "fs-6 text-danger mx-1"
                         }

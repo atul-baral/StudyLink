@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace StudyLink.Domain.Entities
 {
-    public class StudentAnswer
+    public class Answer
     {
         [Key]
         public int AnswerId { get; set; }

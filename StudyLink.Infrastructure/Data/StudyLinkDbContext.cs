@@ -15,6 +15,7 @@ public class StudyLinkDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<QuestionType> QuestionTypes { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Choice> Choices { get; set; }
+    public DbSet<Answer> Answers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

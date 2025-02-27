@@ -47,7 +47,7 @@
                             text: subject.subjectName,
                             value: false,
                             elementAttr: {
-                                id: `${subject.subjectID}`
+                                id: `${subject.subjectId}`
                             }
                         }
                     }))
@@ -65,14 +65,14 @@
                             $("#form").find(".dx-checkbox").each(function () {
                                 var checkbox = $(this).dxCheckBox("instance");
                                 if (checkbox.option("value")) {
-                                    var subjectID = $(this).attr("id");
-                                    selectedSubjects.push({ SubjectID: subjectID });
+                                    var subjectId = $(this).attr("id");
+                                    selectedSubjects.push({ SubjectId: subjectId });
                                 }
                             });
 
                             $("#subjectFields").empty();
                             selectedSubjects.forEach((subject, index) => {
-                                $("#subjectFields").append(`<input type="hidden" name="TeacherSubjects[${index}].SubjectID" value="${subject.SubjectID}" />`);
+                                $("#subjectFields").append(`<input type="hidden" name="TeacherSubjects[${index}].SubjectId" value="${subject.SubjectId}" />`);
                             });
                             if ($("#form").dxForm("instance").validate().isValid) {
                                $("#form-container").submit();
