@@ -1,4 +1,4 @@
-﻿@model IEnumerable<StudyLink.Domain.Entities.QuestionType>
+﻿@model IEnumerable<StudyLink.Application.ViewModels.QuestionTypeResultVM>
 
 @{
     ViewData["Title"] = "Question Types";
@@ -18,6 +18,11 @@
     .content-above h4 {
         font-size: 1.5rem;
     }
+
+    .disabled-card {
+        pointer-events: none;
+        opacity: 0.6;
+    }
 </style>
 
 <div class="container my-5">
@@ -29,10 +34,20 @@
     <div class="row justify-content-center">
         @foreach (var type in Model)
         {
+            var isAnswered = type.IsAnswered;
+
             <div class="col-md-3 col-sm-6 mb-4">
-                <a asp-action="Index" asp-controller="Answer" asp-route-id="@type.QuestionTypeId" class="card shadow-lg border-0 rounded-lg bg-white text-decoration-none d-flex flex-column">
+                <a asp-action="Index" asp-controller="Answer" asp-route-id="@type.QuestionTypeId"
+                   class="card shadow-lg border-0 rounded-lg bg-white text-decoration-none d-flex flex-column
+                          @(isAnswered ? "disabled-card" : "")">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title text-primary mb-3">@type.TypeName</h5>
+                        <h5 class="card-title text-primary mb-3">@type.QuestionTypeName</h5>
+
+                        @if (isAnswered)
+                        {
+                            <p class="text-muted">Total Questions: @type.TotalQuestions</p>
+                            <p class="text-muted">Correct Answers: @type.TotalCorrectAnswers</p>
+                        }
                     </div>
                 </a>
             </div>

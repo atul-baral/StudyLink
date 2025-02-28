@@ -77,5 +77,22 @@ namespace StudyLink.Infrastructure.Repository
             typeof(T).GetProperty("IsDeleted")?.SetValue(entity, true);
             dbSet.Update(entity);
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp.Trim());
+                }
+            }
+
+            return await query.CountAsync(filter);
+        }
+
+
     }
 }

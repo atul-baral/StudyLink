@@ -62,12 +62,22 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
             }
         }
 
-
         public async Task<IActionResult> QuestionTypes(int id)
         {
-            HttpContext.Session.SetString("SubjectId", id.ToString());
-            var questionTypes = await _questionTypeService.GetAllQuestionTypesAsync();
-            return View(questionTypes);
+            if (id > 0)
+            {
+                HttpContext.Session.SetString("SubjectId", id.ToString());
+            }
+            int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int studentId = (int)await _studentService.GetStudentIdByUserIdAsync(user.Id);
+            var questionTypeResults = await _questionTypeService.GetQuestionTypeResultsAsync(subjectId, studentId);
+
+            return View(questionTypeResults);
         }
 
         [HttpPost]

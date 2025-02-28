@@ -15,5 +15,6 @@ namespace StudyLink.Application.Services.Interface
         Task AddQuestionTypeAsync(QuestionType questionType);
         Task UpdateQuestionTypeAsync(QuestionType questionType);
         Task DeleteQuestionTypeAsync(int id);
+        Task<IEnumerable<QuestionTypeResultVM>> GetQuestionTypeResultsAsync(int subjectId, int studentId);
     }
 }

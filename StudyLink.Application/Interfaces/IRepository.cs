@@ -12,5 +12,6 @@ namespace StudyLink.Application.Interfaces
         Task AddAsync(T entity);
         Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
         Task DeleteAsync(T entity);
+        Task<int> CountAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
     }
 }
