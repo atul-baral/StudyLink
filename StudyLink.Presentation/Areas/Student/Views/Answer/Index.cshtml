@@ -1,0 +1,118 @@
+﻿@model List<StudyLink.Application.ViewModels.AddAnswerVM>
+
+@{
+    ViewData["Title"] = "Quiz";
+}
+
+<h2>Quiz</h2>
+
+<form id="quiz-form" action="@Url.Action("AddAnswer", "Student")" method="post">
+    <div id="question-container" class="mt-4"></div>
+    <div id="navigation-buttons" class="mt-4">
+        <div id="prev-btn"></div>
+        <div id="next-btn"></div>
+        <div id="submit-btn"></div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let questions = @Html.Raw(Json.Serialize(Model));
+        let userAnswers = {};
+        let currentQuestionIndex = 0;
+
+        function renderQuestion() {
+            let question = questions[currentQuestionIndex];
+            let questionHtml = `
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong>Q${currentQuestionIndex + 1}: </strong>${question.questionText}
+                    </div>
+                    <div class="card-body">
+                        <div id="radio-group-${question.questionId}" class="row"></div>
+                    </div>
+                </div>
+            `;
+
+            $("#question-container").html(questionHtml);
+
+            $(`#radio-group-${question.questionId}`).dxRadioGroup({
+                items: question.choices.map((choice, index) => ({
+                    value: choice.choiceId,
+                    text: `${String.fromCharCode(65 + index)}. ${choice.choiceText}`,
+                    label: `${String.fromCharCode(65 + index)}. ${choice.choiceText}`,
+                    itemTemplate: function(data) {
+                        return $('<div class="col-md-6"></div>').html(`
+                            <label>
+                                <input type="radio" name="question-${question.questionId}" value="${data.value}"
+                                       ${userAnswers[question.questionId] === data.value ? "checked" : ""} />
+                                ${data.text}
+                            </label>
+                        `);
+                    }
+                })),
+                value: userAnswers[question.questionId],
+                onValueChanged: (e) => {
+                    userAnswers[question.questionId] = e.value;
+                }
+            });
+
+            $("#prev-btn").dxButton({
+                text: "Previous",
+                visible: currentQuestionIndex > 0,
+                onClick: () => {
+                    if (currentQuestionIndex > 0) {
+                        currentQuestionIndex--;
+                        renderQuestion();
+                    }
+                }
+            });
+
+            $("#next-btn").dxButton({
+                text: "Next",
+                visible: currentQuestionIndex < questions.length - 1,
+                onClick: () => {
+                    if (currentQuestionIndex < questions.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestion();
+                    }
+                }
+            });
+
+            $("#submit-btn").dxButton({
+                text: "Submit",
+                stylingMode: "contained",
+                type: "success",
+                visible: currentQuestionIndex === questions.length - 1,
+                onClick: function () {
+                    let choicesData = [];
+                    question.choices.forEach((choice, index) => {
+                        let choiceText = $("#form").find(`input[name="Choices[${index}].ChoiceText"]`).val();
+                        let isCorrect = $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.choiceId;
+
+                        choicesData.push({
+                            ChoiceText: choiceText,
+                            IsCorrect: isCorrect
+                        });
+                    });
+
+                    $("#choicesFields").empty();
+                    choicesData.forEach((choice, index) => {
+                        $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
+                        $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
+                    });
+
+                    if ($("#form").dxForm("instance").validate().isValid) {
+                        $("#form-container").submit();
+                    }else{
+                         alert('Please answer all the questions before submitting.');
+                    }
+                }
+            });
+        }
+
+        $(function () {
+            renderQuestion();
+        });
+    </script>
+}

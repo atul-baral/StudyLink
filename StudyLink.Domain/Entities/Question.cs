@@ -36,7 +36,6 @@ namespace StudyLink.Domain.Entities
         [ValidateNever]
         public QuestionType QuestionType { get; set; }
 
-        [JsonIgnore]
         public ICollection<Choice> Choices { get; set; }
     }
 }

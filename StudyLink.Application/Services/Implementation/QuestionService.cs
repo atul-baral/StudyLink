@@ -58,7 +58,7 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<IEnumerable<Question>> GetAllQuestionsAsync(int subjectId, int questionTypeId)
         {
-           return await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId);
+           return await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId, includeProperties:"Choices");
         }
 
         public async Task<Question> GetQuestionByIdAsync(int id)

@@ -166,9 +166,15 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<Student> GetStudentByUserIdAsync(string userId)
+        public async Task<Student> GetStudentByUserIdForSubjectsAsync(string userId)
         {
             return await _unitOfWork.Students.GetAsync(t => t.UserId == userId, includeProperties: "StudentSubjects.Subject");
+        }
+
+        public async Task<int?> GetStudentIdByUserIdAsync(string userId)
+        {
+            var student = await _unitOfWork.Students.GetAsync(t => t.UserId == userId);
+            return student?.StudentId;
         }
     }
 }

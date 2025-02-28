@@ -22,7 +22,7 @@ namespace StudyLink.Presentation.Areas.Admin.ViewComponents
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
-            var student = await _studentService.GetStudentByUserIdAsync(user.Id);
+            var student = await _studentService.GetStudentByUserIdForSubjectsAsync(user.Id);
             if (student == null || student.StudentSubjects == null) return Content("No subjects assigned.");
 
             var subjects = new List<Subject>();

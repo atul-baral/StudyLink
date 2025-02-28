@@ -8,7 +8,7 @@
         @foreach (var subject in Model)
         {
             <li>
-                <a asp-area="Teacher" asp-controller="Subject" asp-action="Details" asp-route-id="@subject.SubjectId">
+                <a asp-area="Student" asp-controller="Answer" asp-action="QuestionTypes" asp-route-id="@subject.SubjectId">
                     @subject.SubjectName (@subject.SubjectCode)
                 </a>
             </li>
