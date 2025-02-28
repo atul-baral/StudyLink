@@ -6,7 +6,7 @@
 
 <h2>Quiz</h2>
 
-<form id="quiz-form" action="@Url.Action("AddAnswer", "Student")" method="post">
+<form id="quiz-form" action="@Url.Action("AddAnswer", "Answer")" method="post">
     <div id="question-container" class="mt-4"></div>
     <div id="navigation-buttons" class="mt-4">
         <div id="prev-btn"></div>
@@ -23,6 +23,7 @@
 
         function renderQuestion() {
             let question = questions[currentQuestionIndex];
+
             let questionHtml = `
                 <div class="card mb-4">
                     <div class="card-header">
@@ -39,19 +40,11 @@
             $(`#radio-group-${question.questionId}`).dxRadioGroup({
                 items: question.choices.map((choice, index) => ({
                     value: choice.choiceId,
-                    text: `${String.fromCharCode(65 + index)}. ${choice.choiceText}`,
-                    label: `${String.fromCharCode(65 + index)}. ${choice.choiceText}`,
-                    itemTemplate: function(data) {
-                        return $('<div class="col-md-6"></div>').html(`
-                            <label>
-                                <input type="radio" name="question-${question.questionId}" value="${data.value}"
-                                       ${userAnswers[question.questionId] === data.value ? "checked" : ""} />
-                                ${data.text}
-                            </label>
-                        `);
-                    }
+                    text: `${String.fromCharCode(65 + index)}. ${choice.choiceText}`
                 })),
-                value: userAnswers[question.questionId],
+                displayExpr: "text",
+                valueExpr: "value",
+                value: userAnswers[question.questionId] || null,
                 onValueChanged: (e) => {
                     userAnswers[question.questionId] = e.value;
                 }
@@ -85,28 +78,22 @@
                 type: "success",
                 visible: currentQuestionIndex === questions.length - 1,
                 onClick: function () {
-                    let choicesData = [];
-                    question.choices.forEach((choice, index) => {
-                        let choiceText = $("#form").find(`input[name="Choices[${index}].ChoiceText"]`).val();
-                        let isCorrect = $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.choiceId;
+                    let unansweredQuestions = questions.filter(q => !userAnswers[q.questionId]);
 
-                        choicesData.push({
-                            ChoiceText: choiceText,
-                            IsCorrect: isCorrect
-                        });
-                    });
-
-                    $("#choicesFields").empty();
-                    choicesData.forEach((choice, index) => {
-                        $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
-                        $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
-                    });
-
-                    if ($("#form").dxForm("instance").validate().isValid) {
-                        $("#form-container").submit();
-                    }else{
-                         alert('Please answer all the questions before submitting.');
+                    if (unansweredQuestions.length > 0) {
+                        alert('Please answer all the questions before submitting.');
+                        return;
                     }
+
+                    let form = $("#quiz-form");
+                    form.find("input[type=hidden]").remove();
+
+                    questions.forEach((question, index) => {
+                        form.append(`<input type="hidden" name="[${index}].QuestionId" value="${question.questionId}" />`);
+                        form.append(`<input type="hidden" name="[${index}].Answer.ChoiceId" value="${userAnswers[question.questionId]}" />`);
+                    });
+
+                    form.submit();
                 }
             });
         }

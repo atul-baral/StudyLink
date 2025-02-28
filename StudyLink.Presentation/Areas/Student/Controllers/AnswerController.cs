@@ -19,31 +19,14 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
         private readonly IStudentService _studentService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AnswerController(IAnswerService answerService, IQuestionService questionService, IQuestionTypeService questionTypeService, IStudentService studentService)
+        public AnswerController(IAnswerService answerService, IQuestionService questionService, IQuestionTypeService questionTypeService, IStudentService studentService, UserManager<ApplicationUser> userManager)
         {
             _answerService = answerService;
             _questionService = questionService;
             _questionTypeService = questionTypeService;
             _studentService = studentService;
+            _userManager = userManager;
         }
-        /*        public async Task<IActionResult> Index(int id)
-                {
-                    try
-                    {
-                        if (id > 0)
-                        {
-                            HttpContext.Session.SetString("QuestionTypeId", id.ToString());
-                        }
-                        int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
-                        int questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
-                        var questions = await _questionService.GetAllQuestionsAsync(subjectId, questionTypeId);
-                        return View(questions);
-                    }
-                    catch (Exception ex)
-                    {
-                        return this.Handle(ex.Message);
-                    }
-                }*/
 
         public async Task<IActionResult> Index(int id)
         {
@@ -109,8 +92,8 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
                 {
                     await _answerService.AddAnswerAsync(answer);
                 }
-
-                return RedirectToAction("Index");
+                TempData["Success"] = "Answers Submitted successfully!";
+                return RedirectToAction("QuestionTypes");
             }
             catch (Exception ex)
             {
