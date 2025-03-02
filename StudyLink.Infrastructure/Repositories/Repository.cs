@@ -25,6 +25,11 @@ namespace StudyLink.Infrastructure.Repository
             await dbSet.AddAsync(entity);
         }
 
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await dbSet.AddRangeAsync(entities);
+        }
+
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
         {
             return await dbSet.AnyAsync(filter);

@@ -11,7 +11,7 @@ namespace StudyLink.Application.Services.Interface
     {
         Task<IEnumerable<Answer>> GetAllAnswersAsync();
         Task<Answer> GetAnswerByIdAsync(int id);
-        Task AddAnswerAsync(Answer answer);
+        Task AddAnswersAsync(IEnumerable<Answer> answers);
         Task UpdateAnswerAsync(Answer answer);
         Task DeleteAnswerAsync(int id);
     }

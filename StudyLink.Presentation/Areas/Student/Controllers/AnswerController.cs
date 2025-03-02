@@ -98,10 +98,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
                     StudentId = studentId
                 }).ToList();
 
-                foreach (var answer in answers)
-                {
-                    await _answerService.AddAnswerAsync(answer);
-                }
+                await _answerService.AddAnswersAsync(answers);
                 TempData["Success"] = "Answers Submitted successfully!";
                 return RedirectToAction("QuestionTypes");
             }
@@ -110,6 +107,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
                 return this.Handle(ex.Message);
             }
         }
+
 
     }
 }

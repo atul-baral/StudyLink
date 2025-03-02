@@ -18,11 +18,12 @@ namespace StudyLink.Application.Services.Implementation
             _unitOfWork = unitOfWork;
         }
 
-        public async Task AddAnswerAsync(Answer answer)
+        public async Task AddAnswersAsync(IEnumerable<Answer> answers)
         {
-            await _unitOfWork.Answers.AddAsync(answer);
+            await _unitOfWork.Answers.AddRangeAsync(answers);
             await _unitOfWork.CompleteAsync();
         }
+
 
         public async Task DeleteAnswerAsync(int id)
         {
