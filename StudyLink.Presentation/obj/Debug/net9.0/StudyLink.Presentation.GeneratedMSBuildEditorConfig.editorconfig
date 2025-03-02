@@ -108,8 +108,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcU3R1ZGVudFxWaWV3c1xBbnN3ZXJcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Student/Views/Answer/QuestionTypes.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcU3R1ZGVudFxWaWV3c1xBbnN3ZXJcUXVlc3Rpb25UeXBlcy5jc2h0bWw=
+[E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Student/Views/Answer/ListQuestionTypesWithResult.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcU3R1ZGVudFxWaWV3c1xBbnN3ZXJcTGlzdFF1ZXN0aW9uVHlwZXNXaXRoUmVzdWx0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/PROJECTS/Spiral_PRJ/Intern/StudyLink/StudyLink.Presentation/Areas/Student/Views/Home/Index.cshtml]

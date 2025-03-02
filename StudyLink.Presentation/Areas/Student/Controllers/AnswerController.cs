@@ -62,23 +62,46 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
             }
         }
 
-        public async Task<IActionResult> QuestionTypes(int id)
+        public async Task<IActionResult> ListQuestionTypesWithResult(int id)
         {
             if (id > 0)
             {
                 HttpContext.Session.SetString("SubjectId", id.ToString());
             }
+
             int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
+
             int studentId = (int)await _studentService.GetStudentIdByUserIdAsync(user.Id);
-            var questionTypeResults = await _questionTypeService.GetQuestionTypeResultsAsync(subjectId, studentId);
+
+            var questionTypeIds = await _questionTypeService.GetDistinctQuestionTypeIdsAsync(subjectId);
+            var questionTypeResults = new List<QuestionTypeResultVM>();
+
+            foreach (int questionTypeId in questionTypeIds)
+            {
+                var questionType = await _questionTypeService.GetQuestionTypeByIdAsync(questionTypeId);
+                var totalQuestions = await _questionTypeService.GetTotalQuestionsByTypeAsync(subjectId, questionTypeId);
+                var correctAnswers = await _answerService.GetCorrectAnswersAsync(subjectId, questionTypeId);
+                var isAnswered = await _answerService.HasStudentAnsweredAsync(subjectId, questionTypeId, studentId);
+
+                questionTypeResults.Add(new QuestionTypeResultVM
+                {
+                    QuestionTypeId = questionTypeId,
+                    QuestionTypeName = questionType.TypeName,
+                    TotalQuestions = totalQuestions,
+                    TotalCorrectAnswers = correctAnswers,
+                    IsAnswered = isAnswered
+                });
+            }
 
             return View(questionTypeResults);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> AddAnswer(List<AddAnswerVM> model)
@@ -100,7 +123,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
 
                 await _answerService.AddAnswersAsync(answers);
                 TempData["Success"] = "Answers Submitted successfully!";
-                return RedirectToAction("QuestionTypes");
+                return RedirectToAction("ListQuestionTypesWithResult");
             }
             catch (Exception ex)
             {

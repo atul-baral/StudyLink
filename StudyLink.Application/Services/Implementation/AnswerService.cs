@@ -50,5 +50,25 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.Answers.UpdateAsync(answer);
             await _unitOfWork.CompleteAsync();
         }
+
+        public async Task<int> GetCorrectAnswersAsync(int subjectId, int questionTypeId)
+        {
+            return await _unitOfWork.Answers.CountAsync(
+                a => a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId &&
+                     a.SelectedChoice.IsCorrect,
+                includeProperties: "Question"
+            );
+        }
+
+        public async Task<bool> HasStudentAnsweredAsync(int subjectId, int questionTypeId, int studentId)
+        {
+            return await _unitOfWork.Answers.AnyAsync(
+                a => a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId &&
+                     a.StudentId == studentId
+            );
+        }
+
     }
 }

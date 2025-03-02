@@ -14,5 +14,7 @@ namespace StudyLink.Application.Services.Interface
         Task AddAnswersAsync(IEnumerable<Answer> answers);
         Task UpdateAnswerAsync(Answer answer);
         Task DeleteAnswerAsync(int id);
+        Task<int> GetCorrectAnswersAsync(int subjectId, int questionTypeId);
+        Task<bool> HasStudentAnsweredAsync(int subjectId, int questionTypeId, int studentId);
     }
 }

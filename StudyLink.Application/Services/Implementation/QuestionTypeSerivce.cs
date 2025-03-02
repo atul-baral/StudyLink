@@ -53,42 +53,16 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<IEnumerable<QuestionTypeResultVM>> GetQuestionTypeResultsAsync(int subjectId, int studentId)
+        public async Task<IEnumerable<int>> GetDistinctQuestionTypeIdsAsync(int subjectId)
         {
             var questions = await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted);
-            var questionTypeIds = questions.Select(q => q.QuestionTypeId).Distinct();
+            return questions.Select(q => q.QuestionTypeId).Distinct();
+        }
 
-            var results = new List<QuestionTypeResultVM>();
-
-            foreach (int qtId in questionTypeIds)
-            {
-                var questionType = await _unitOfWork.Questions.GetAsync(u => u.QuestionTypeId == qtId, includeProperties: "QuestionType");
-                var totalQuestions = questions.Count(q => q.QuestionTypeId == qtId);
-
-                var correctAnswers = await _unitOfWork.Answers.CountAsync(
-                    a => a.Question.SubjectId == subjectId &&
-                         a.Question.QuestionTypeId == qtId &&
-                         a.SelectedChoice.IsCorrect,
-                    includeProperties: "Question"
-                );
-
-                bool isAnswered = await _unitOfWork.Answers.AnyAsync(
-                    a => a.Question.SubjectId == subjectId &&
-                         a.Question.QuestionTypeId == qtId &&
-                         a.StudentId == studentId
-                );
-
-                results.Add(new QuestionTypeResultVM
-                {
-                    QuestionTypeId = qtId,
-                    QuestionTypeName = questionType.QuestionType.TypeName,
-                    TotalQuestions = totalQuestions,
-                    TotalCorrectAnswers = correctAnswers,
-                    IsAnswered = isAnswered 
-                });
-            }
-
-            return results;
+        public async Task<int> GetTotalQuestionsByTypeAsync(int subjectId, int questionTypeId)
+        {
+            var questions = await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId);
+            return questions.Count();
         }
 
     }
