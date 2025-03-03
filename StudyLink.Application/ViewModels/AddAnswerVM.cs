@@ -10,18 +10,18 @@ namespace StudyLink.Application.ViewModels
     {
         public int QuestionId { get; set; }
         public string QuestionText { get; set; }
-        public List<ChoiceViewModel> Choices { get; set; }
+        public List<ChoiceVM> Choices { get; set; }
 
-        public AnswerViewModel Answer { get; set; } = new AnswerViewModel();
+        public AnswerVM Answer { get; set; } = new AnswerVM();
     }
 
-    public class ChoiceViewModel
+    public class ChoiceVM
     {
         public int ChoiceId { get; set; }
         public string ChoiceText { get; set; }
     }
 
-    public class AnswerViewModel
+    public class AnswerVM
     {
         public int ChoiceId { get; set; }  
     }

@@ -8,6 +8,7 @@ using StudyLink.Application.Services.Interface;
 using StudyLink.Application.Services.Implementation;
 using Microsoft.AspNetCore.Identity;
 using StudyLink.Domain.Entities;
+using StudyLink.Application.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,7 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddAutoMapper(typeof(MapperProfile).Assembly);
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);

@@ -46,12 +46,12 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
                 {
                     QuestionId = q.QuestionId,
                     QuestionText = q.QuestionText,
-                    Choices = q.Choices.Select(c => new ChoiceViewModel
+                    Choices = q.Choices.Select(c => new ChoiceVM
                     {
                         ChoiceId = c.ChoiceId,
                         ChoiceText = c.ChoiceText
                     }).ToList(),
-                    Answer = new AnswerViewModel() 
+                    Answer = new AnswerVM() 
                 }).ToList();
 
                 return View(viewModel);

@@ -168,7 +168,16 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<Teacher> GetTeacherByUserIdForSubjectsAsync(string userId)
         {
-            return await _unitOfWork.Teachers.GetAsync(t => t.UserId == userId, includeProperties: "TeacherSubjects.Subject");
+            var teacher = await _unitOfWork.Teachers.GetAsync(
+                           t => t.UserId == userId,
+                           includeProperties: "TeacherSubjects.Subject");
+
+            if (teacher != null)
+            {
+                teacher.TeacherSubjects = teacher.TeacherSubjects.Where(ts => !ts.IsDeleted).ToList();
+            }
+
+            return teacher;
         }
 
         public async Task<int?> GetTeacherIdByUserIdAsync(string userId)

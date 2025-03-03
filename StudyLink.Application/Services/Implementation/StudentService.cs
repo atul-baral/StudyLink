@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace StudyLink.Application.Services.Implementation
 {
@@ -14,35 +15,24 @@ namespace StudyLink.Application.Services.Implementation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public StudentService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public StudentService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<AddStudentVM>> GetAllStudentsAsync()
         {
-            var students = await _unitOfWork.Students.GetAllAsync();
+            var students = await _unitOfWork.Students.GetAllAsync(includeProperties: "StudentSubjects,User");
             var studentVMs = new List<AddStudentVM>();
 
             foreach (var student in students)
             {
-                var user = await _userManager.FindByIdAsync(student.UserId);
-                if (user != null)
-                {
-                    studentVMs.Add(new AddStudentVM
-                    {
-                        StudentId = student.StudentId,
-                        UserId = student.UserId,
-                        IsDeleted = student.IsDeleted,
-                        StudentSubjects = student.StudentSubjects,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Address = user.Address,
-                        Email = user.Email
-                    });
-                }
+                var addStudentVm = _mapper.Map<AddStudentVM>(student);
+                studentVMs.Add(addStudentVm);
             }
             return studentVMs;
         }
@@ -50,37 +40,18 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<AddStudentVM> GetStudentByIdAsync(int id)
         {
-            var student = await _unitOfWork.Students.GetAsync(u => u.StudentId == id, includeProperties: "StudentSubjects");
-            var user = await _userManager.FindByIdAsync(student.UserId);
-
-            return new AddStudentVM
-            {
-                StudentId = student.StudentId,
-                UserId = student.UserId,
-                IsDeleted = student.IsDeleted,
-                StudentSubjects = student.StudentSubjects,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Address = user.Address,
-                Email = user.Email
-            };
+            var student = await _unitOfWork.Students.GetAsync(u => u.StudentId == id, includeProperties: "StudentSubjects,User");
+            return  _mapper.Map<AddStudentVM>(student);
         }
 
-        public async Task AddStudentAsync(AddStudentVM student)
+        public async Task AddStudentAsync(AddStudentVM studentVM)
         {
-            foreach (var studentSubject in student.StudentSubjects)
+            foreach (var studentSubject in studentVM.StudentSubjects)
             {
                 studentSubject.CreatedAt = DateTime.Now;
             }
 
-            var newUser = new ApplicationUser
-            {
-                UserName = student.Email,
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                Address = student.Address,
-                Email = student.Email
-            };
+            var newUser = _mapper.Map<ApplicationUser>(studentVM);
 
             var result = await _userManager.CreateAsync(newUser, "User@1234");
             if (!result.Succeeded)
@@ -89,12 +60,7 @@ namespace StudyLink.Application.Services.Implementation
             }
             await _userManager.AddToRoleAsync(newUser, "Student");
 
-            var newStudent = new Student
-            {
-                UserId = newUser.Id,
-                IsDeleted = student.IsDeleted,
-                StudentSubjects = student.StudentSubjects
-            };
+            var newStudent = _mapper.Map<Student>(studentVM);
 
             await _unitOfWork.Students.AddAsync(newStudent);
             await _unitOfWork.CompleteAsync();
@@ -168,7 +134,16 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<Student> GetStudentByUserIdForSubjectsAsync(string userId)
         {
-            return await _unitOfWork.Students.GetAsync(t => t.UserId == userId, includeProperties: "StudentSubjects.Subject");
+            var student = await _unitOfWork.Students.GetAsync(
+                t => t.UserId == userId,
+                includeProperties: "StudentSubjects.Subject");
+
+            if (student != null)
+            {
+                student.StudentSubjects = student.StudentSubjects.Where(ss => !ss.IsDeleted).ToList();
+            }
+
+            return student;
         }
 
         public async Task<int?> GetStudentIdByUserIdAsync(string userId)
