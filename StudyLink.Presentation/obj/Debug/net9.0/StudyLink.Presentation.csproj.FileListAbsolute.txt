@@ -7,6 +7,7 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\StudyLink.Presentation.runtimeconfig.json
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\StudyLink.Presentation.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\StudyLink.Presentation.pdb
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\AutoMapper.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Azure.Core.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Azure.Identity.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\DevExtreme.AspNet.Data.dll
@@ -280,6 +281,10 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.MvcApplicationPartsAssemblyInfo.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.RazorAssemblyInfo.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.RazorAssemblyInfo.cs
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.sourcelink.json
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Admin\Views\Shared\_Layout.cshtml.rz.scp.css
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Student\Views\Shared\_Layout.cshtml.rz.scp.css
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Teacher\Views\Shared\_Layout.cshtml.rz.scp.css
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\bundle\StudyLink.Presentation.styles.css
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\projectbundle\StudyLink.Presentation.bundle.scp.css
@@ -345,9 +350,10 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\nezrqnk58p-muycvpuwrr.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\v0zgfp0y55-87fc7y1x7t.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\yfc7ypekbg-mlv21k5csn.gz
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\0t642cbbni-b6s2myobe3.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\iexz1ohs9h-b9sayid5wm.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\51yxexyiu4-61n19gt1b8.gz
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\y1j7m4so07-xtxxf3hu2r.gz
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\y1j7m4so07-dfxudh9kjj.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\e5bf947rjs-bqjiyaj88i.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\esa3qbn1p7-c2jlpeoesf.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\t7kz16z6se-erw9l3u2r3.gz
@@ -407,6 +413,8 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\7pu7eluxoe-muycvpuwrr.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\m8tyvxb601-87fc7y1x7t.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\750cjhbojt-mlv21k5csn.gz
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\qabviixa8z-0qr026bdwp.gz
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\2u96eyuvbh-0qr026bdwp.gz
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\staticwebassets.build.json
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\staticwebassets.development.json
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\staticwebassets.build.endpoints.json
@@ -423,11 +431,3 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.pdb
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.genruntimeconfig.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\ref\StudyLink.Presentation.dll
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Admin\Views\Shared\_Layout.cshtml.rz.scp.css
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\0t642cbbni-b6s2myobe3.gz
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Student\Views\Shared\_Layout.cshtml.rz.scp.css
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\scopedcss\Areas\Teacher\Views\Shared\_Layout.cshtml.rz.scp.css
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\qabviixa8z-0qr026bdwp.gz
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\compressed\2u96eyuvbh-0qr026bdwp.gz
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.sourcelink.json
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\AutoMapper.dll

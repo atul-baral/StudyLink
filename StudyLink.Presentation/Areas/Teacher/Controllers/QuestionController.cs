@@ -17,28 +17,18 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
     {
         private readonly IQuestionService _questionService;
         private readonly IQuestionTypeService _questionTypeService;
-        private readonly ITeacherService _teacherService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public QuestionController(IQuestionService questionService, IQuestionTypeService questionTypeService, ITeacherService teacherService, UserManager<ApplicationUser> userManager)
+        public QuestionController(IQuestionService questionService, IQuestionTypeService questionTypeService)
         {
             _questionService = questionService;
             _questionTypeService = questionTypeService;
-            _teacherService = teacherService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int id)
         {
             try
             {
-                if ( id > 0)
-                {
-                    HttpContext.Session.SetString("QuestionTypeId", id.ToString());
-                }
-                int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
-                int questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
-                var questions = await _questionService.GetAllQuestionsAsync( subjectId, questionTypeId);
+                var questions = await _questionService.GetAllQuestionsAsync(id);
                 return View(questions);
             }
             catch (Exception ex)
@@ -66,13 +56,6 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    string subjectId = HttpContext.Session.GetString("SubjectId");
-                    string questionTypeId = HttpContext.Session.GetString("QuestionTypeId");
-                    var user = await _userManager.GetUserAsync(User);
-                    int teacherId = (int)await _teacherService.GetTeacherIdByUserIdAsync(user.Id);
-                    question.TeacherId = teacherId;
-                    question.SubjectId = int.Parse(subjectId);
-                    question.QuestionTypeId = int.Parse(questionTypeId);
                     await _questionService.AddQuestionAsync(question);
                     TempData["Success"] = "Question created successfully!";
                     return RedirectToAction(nameof(Index));

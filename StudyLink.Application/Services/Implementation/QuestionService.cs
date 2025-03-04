@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using StudyLink.Application.Interfaces;
 using StudyLink.Application.Services.Interface;
 using StudyLink.Application.ViewModels;
@@ -10,41 +12,40 @@ namespace StudyLink.Application.Services.Implementation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITeacherService _teacherService;
 
-        public QuestionService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+        public QuestionService(
+            IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper,
+            UserManager<ApplicationUser> userManager,
+            ITeacherService teacherService)
         {
             _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
+            _userManager = userManager;
+            _teacherService = teacherService;
         }
 
         public async Task AddQuestionAsync(AddQuestionVM addQuestionVm)
         {
-            var question = new Question
-            {
-                QuestionText = addQuestionVm.QuestionText,
-                SubjectId = addQuestionVm.SubjectId ?? 0,
-                TeacherId = addQuestionVm.TeacherId ?? 0,
-                QuestionTypeId = addQuestionVm.QuestionTypeId ?? 0,
-                IsDeleted = false,
-                Choices = addQuestionVm.Choices?.Select(c => new Choice
-                {
-                    ChoiceText = c.ChoiceText,
-                    IsCorrect = c.IsCorrect
-                }).ToList() ?? new List<Choice>()  
-            };
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            int teacherId = (int)await _teacherService.GetTeacherIdByUserIdAsync(user.Id);
+
+            string subjectId = _httpContextAccessor.HttpContext.Session.GetString("SubjectId");
+            string questionTypeId = _httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId");
+
+            var question = _mapper.Map<Question>(addQuestionVm);
+            question.TeacherId = teacherId;
+            question.SubjectId = int.Parse(subjectId);
+            question.QuestionTypeId = int.Parse(questionTypeId);
 
             await _unitOfWork.Questions.AddAsync(question);
-
-            try
-            {
-                await _unitOfWork.CompleteAsync();
-            }
-            catch(Exception e) {
-                Console.WriteLine(e);
-            }
+            await _unitOfWork.CompleteAsync();
         }
-
-
 
         public async Task DeleteQuestionAsync(int id)
         {
@@ -56,9 +57,30 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<IEnumerable<Question>> GetAllQuestionsAsync(int subjectId, int questionTypeId)
+        public async Task<IEnumerable<Question>> GetAllQuestionsAsync(int id)
         {
-           return await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId, includeProperties:"Choices");
+            if (id > 0)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("QuestionTypeId", id.ToString());
+            }
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+            int questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
+            return await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId, includeProperties:"Choices");
+        }
+
+        public async Task<IEnumerable<AddAnswerVM>> GetAllQuestionsForAnswerAsync(int id)
+        {
+            if (id > 0)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("QuestionTypeId", id.ToString());
+            }
+
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+            int questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
+
+            var questions = await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId, includeProperties: "Choices");
+            var mappedQuestions = _mapper.Map<List<AddAnswerVM>>(questions);
+            return mappedQuestions;
         }
 
         public async Task<Question> GetQuestionByIdAsync(int id)

@@ -10,10 +10,11 @@ namespace StudyLink.Application.Services.Interface
 {
     public interface IQuestionService
     {
-        Task<IEnumerable<Question>> GetAllQuestionsAsync(int subjectId, int questionTypeId);
+        Task<IEnumerable<Question>> GetAllQuestionsAsync(int id);
         Task<Question> GetQuestionByIdAsync(int id);
         Task AddQuestionAsync(AddQuestionVM question);
         Task UpdateQuestionAsync(Question question);
         Task DeleteQuestionAsync(int id);
+        Task<IEnumerable<AddAnswerVM>> GetAllQuestionsForAnswerAsync(int id);
     }
 }

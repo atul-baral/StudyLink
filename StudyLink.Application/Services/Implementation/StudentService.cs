@@ -37,7 +37,6 @@ namespace StudyLink.Application.Services.Implementation
             return studentVMs;
         }
 
-
         public async Task<AddStudentVM> GetStudentByIdAsync(int id)
         {
             var student = await _unitOfWork.Students.GetAsync(u => u.StudentId == id, includeProperties: "StudentSubjects,User");
@@ -61,6 +60,7 @@ namespace StudyLink.Application.Services.Implementation
             await _userManager.AddToRoleAsync(newUser, "Student");
 
             var newStudent = _mapper.Map<Student>(studentVM);
+            newStudent.UserId = newUser.Id;
 
             await _unitOfWork.Students.AddAsync(newStudent);
             await _unitOfWork.CompleteAsync();
@@ -72,7 +72,6 @@ namespace StudyLink.Application.Services.Implementation
 
             var submittedSubjectIds = student.StudentSubjects.Select(ss => ss.SubjectId).ToList();
 
-            // Restore subjects that were marked as deleted but are in the submitted list
             foreach (var existingSubject in existingStudent.StudentSubjects)
             {
                 if (submittedSubjectIds.Contains(existingSubject.SubjectId) && existingSubject.IsDeleted)
@@ -85,7 +84,6 @@ namespace StudyLink.Application.Services.Implementation
                 }
             }
 
-            // Add new subjects that are in the submitted list but not in the existing list
             foreach (var subjectId in submittedSubjectIds.Except(existingStudent.StudentSubjects.Select(es => es.SubjectId)))
             {
                 existingStudent.StudentSubjects.Add(new StudentSubject
@@ -97,16 +95,10 @@ namespace StudyLink.Application.Services.Implementation
                 });
             }
 
-
-            // Update the associated ApplicationUser
             var user = await _userManager.FindByIdAsync(existingStudent.UserId);
             if (user != null)
             {
-                user.FirstName = student.FirstName;
-                user.LastName = student.LastName;
-                user.Address = student.Address;
-                user.Email = student.Email;
-
+                _mapper.Map(student, user);
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
@@ -114,6 +106,8 @@ namespace StudyLink.Application.Services.Implementation
                 }
             }
 
+            _mapper.Map(student, existingStudent);
+            //existingStudent.UserId = user.Id;
             await _unitOfWork.Students.UpdateAsync(existingStudent);
             await _unitOfWork.CompleteAsync();
         }

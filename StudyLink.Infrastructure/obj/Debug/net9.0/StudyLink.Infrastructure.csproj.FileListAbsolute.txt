@@ -10,9 +10,9 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.AssemblyInfoInputs.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.AssemblyInfo.cs
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.csproj.CoreCompileInputs.cache
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.sourcelink.json
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLin.B049E449.Up2Date
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\refint\StudyLink.Infrastructure.dll
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.pdb
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\ref\StudyLink.Infrastructure.dll
-E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Infrastructure\obj\Debug\net9.0\StudyLink.Infrastructure.sourcelink.json

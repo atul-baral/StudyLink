@@ -53,17 +53,5 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<IEnumerable<int>> GetDistinctQuestionTypeIdsAsync(int subjectId)
-        {
-            var questions = await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted);
-            return questions.Select(q => q.QuestionTypeId).Distinct();
-        }
-
-        public async Task<int> GetTotalQuestionsByTypeAsync(int subjectId, int questionTypeId)
-        {
-            var questions = await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId);
-            return questions.Count();
-        }
-
     }
 }

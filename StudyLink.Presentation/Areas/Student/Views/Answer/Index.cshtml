@@ -6,6 +6,8 @@
 
 <h2>Quiz</h2>
 
+<div id="timer" class="mt-4" style="font-size: 20px; font-weight: bold;">Time Remaining: <span id="timer-display">00:00</span></div>
+
 <form id="quiz-form" action="@Url.Action("AddAnswer", "Answer")" method="post">
     <div id="question-container" class="mt-4"></div>
     <div id="navigation-buttons" class="mt-4">
@@ -20,6 +22,26 @@
         let questions = @Html.Raw(Json.Serialize(Model));
         let userAnswers = {};
         let currentQuestionIndex = 0;
+        let countdownTimer;
+        let timeLeftInSeconds = 60 * 10;
+
+        function updateTimer() {
+            let minutes = Math.floor(timeLeftInSeconds / 60);
+            let seconds = timeLeftInSeconds % 60;
+            $("#timer-display").text(`${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+
+            if (timeLeftInSeconds <= 0) {
+                clearInterval(countdownTimer);
+                alert("Time's up! The quiz will be submitted automatically.");
+                $("#quiz-form").submit();
+            } else {
+                timeLeftInSeconds--;
+            }
+        }
+
+        function startTimer() {
+            countdownTimer = setInterval(updateTimer, 1000);
+        }
 
         function renderQuestion() {
             let question = questions[currentQuestionIndex];
@@ -100,6 +122,7 @@
 
         $(function () {
             renderQuestion();
+            startTimer();
         });
     </script>
 }
