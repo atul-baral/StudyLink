@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudyLink.Presentation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ba711cb4eed552257d4d087087b29a13dd252fe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+60c208f84482c3a2ea6d9c59c1102467f025b7cd")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudyLink.Presentation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudyLink.Presentation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

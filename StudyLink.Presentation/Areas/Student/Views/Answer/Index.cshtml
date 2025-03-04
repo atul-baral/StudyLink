@@ -17,13 +17,21 @@
     </div>
 </form>
 
+<div id="popup-container">
+    <div class="popup-content">
+        <h4 id="popup-message-title"></h4>
+        <p id="popup-message-text"></p>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         let questions = @Html.Raw(Json.Serialize(Model));
         let userAnswers = {};
         let currentQuestionIndex = 0;
         let countdownTimer;
-        let timeLeftInSeconds = 60 * 10;
+        let timeLeftInSeconds = 60 * 0.1; // 10 minutes
+        let popupInstance;
 
         function updateTimer() {
             let minutes = Math.floor(timeLeftInSeconds / 60);
@@ -32,8 +40,7 @@
 
             if (timeLeftInSeconds <= 0) {
                 clearInterval(countdownTimer);
-                alert("Time's up! The quiz will be submitted automatically.");
-                $("#quiz-form").submit();
+                showPopup("Time's up!", "Your time has expired. The quiz will be submitted automatically.");
             } else {
                 timeLeftInSeconds--;
             }
@@ -43,9 +50,23 @@
             countdownTimer = setInterval(updateTimer, 1000);
         }
 
+        function showPopup(title, message) {
+            $("#popup-message-title").text(title);
+            $("#popup-message-text").text(message);
+
+            popupInstance.option("contentTemplate", function () {
+                let contentDiv = $("<div>").append(
+                    $("<h4>").text(title).addClass("popup-title"),
+                    $("<p>").text(message).addClass("popup-message-text")
+                );
+                return contentDiv;
+            });
+
+            popupInstance.option("visible", true);
+        }
+
         function renderQuestion() {
             let question = questions[currentQuestionIndex];
-
             let questionHtml = `
                 <div class="card mb-4">
                     <div class="card-header">
@@ -56,7 +77,6 @@
                     </div>
                 </div>
             `;
-
             $("#question-container").html(questionHtml);
 
             $(`#radio-group-${question.questionId}`).dxRadioGroup({
@@ -67,31 +87,19 @@
                 displayExpr: "text",
                 valueExpr: "value",
                 value: userAnswers[question.questionId] || null,
-                onValueChanged: (e) => {
-                    userAnswers[question.questionId] = e.value;
-                }
+                onValueChanged: (e) => userAnswers[question.questionId] = e.value
             });
 
             $("#prev-btn").dxButton({
                 text: "Previous",
                 visible: currentQuestionIndex > 0,
-                onClick: () => {
-                    if (currentQuestionIndex > 0) {
-                        currentQuestionIndex--;
-                        renderQuestion();
-                    }
-                }
+                onClick: () => { if (currentQuestionIndex > 0) currentQuestionIndex--; renderQuestion(); }
             });
 
             $("#next-btn").dxButton({
                 text: "Next",
                 visible: currentQuestionIndex < questions.length - 1,
-                onClick: () => {
-                    if (currentQuestionIndex < questions.length - 1) {
-                        currentQuestionIndex++;
-                        renderQuestion();
-                    }
-                }
+                onClick: () => { if (currentQuestionIndex < questions.length - 1) currentQuestionIndex++; renderQuestion(); }
             });
 
             $("#submit-btn").dxButton({
@@ -99,22 +107,19 @@
                 stylingMode: "contained",
                 type: "success",
                 visible: currentQuestionIndex === questions.length - 1,
-                onClick: function () {
+                onClick: () => {
                     let unansweredQuestions = questions.filter(q => !userAnswers[q.questionId]);
-
                     if (unansweredQuestions.length > 0) {
-                        alert('Please answer all the questions before submitting.');
+                        showPopup("Incomplete Answers", "Please answer all the questions before submitting.");
                         return;
                     }
 
                     let form = $("#quiz-form");
                     form.find("input[type=hidden]").remove();
-
                     questions.forEach((question, index) => {
                         form.append(`<input type="hidden" name="[${index}].QuestionId" value="${question.questionId}" />`);
                         form.append(`<input type="hidden" name="[${index}].Answer.ChoiceId" value="${userAnswers[question.questionId]}" />`);
                     });
-
                     form.submit();
                 }
             });
@@ -123,6 +128,16 @@
         $(function () {
             renderQuestion();
             startTimer();
+
+            popupInstance = $("#popup-container").dxPopup({
+                visible: false,
+                dragEnabled: true,
+                closeOnOutsideClick: false,
+                showTitle: true,
+                title: "Message",
+                width: 300,
+                height: 200
+            }).dxPopup("instance");
         });
     </script>
 }
