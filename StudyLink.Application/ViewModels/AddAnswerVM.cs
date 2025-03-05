@@ -23,6 +23,6 @@ namespace StudyLink.Application.ViewModels
 
     public class AnswerVM
     {
-        public int ChoiceId { get; set; }  
+        public int? ChoiceId { get; set; }  
     }
 }

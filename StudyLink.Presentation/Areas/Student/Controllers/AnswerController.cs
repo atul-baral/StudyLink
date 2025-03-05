@@ -36,7 +36,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
             }
         }
 
-        public async Task<IActionResult> ListQuestionTypesWithResult(int id)
+        public async Task<IActionResult> ListQuestionTypesWithResult(int id=0)
         {
             var questionTypeWithResult = await _answerService.GetAllQuestionTypeWithResult(id);
             return View(questionTypeWithResult);

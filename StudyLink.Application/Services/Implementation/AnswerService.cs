@@ -41,7 +41,14 @@ namespace StudyLink.Application.Services.Implementation
                 answer.StudentId = studentId;
             }
             await _unitOfWork.Answers.AddRangeAsync(answers);
-            await _unitOfWork.CompleteAsync();
+            try
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 

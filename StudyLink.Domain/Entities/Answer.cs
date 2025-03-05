@@ -21,7 +21,7 @@ namespace StudyLink.Domain.Entities
         public int QuestionId { get; set; }
 
         [ForeignKey(nameof(Choice))]
-        public int SelectedChoiceId { get; set; }
+        public int? SelectedChoiceId { get; set; }
         public bool IsDeleted { get; set; } = false;
 
         [ValidateNever]

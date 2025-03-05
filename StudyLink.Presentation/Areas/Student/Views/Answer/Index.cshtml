@@ -21,6 +21,8 @@
     <div class="popup-content">
         <h4 id="popup-message-title"></h4>
         <p id="popup-message-text"></p>
+@*         <button id="yes-btn">Yes</button>
+        <button id="no-btn">No</button> *@
     </div>
 </div>
 
@@ -30,7 +32,7 @@
         let userAnswers = {};
         let currentQuestionIndex = 0;
         let countdownTimer;
-        let timeLeftInSeconds = 60 * 0.1; // 10 minutes
+        let timeLeftInSeconds = 60 * 0.1; // 10 second
         let popupInstance;
 
         function updateTimer() {
@@ -40,7 +42,7 @@
 
             if (timeLeftInSeconds <= 0) {
                 clearInterval(countdownTimer);
-                showPopup("Time's up!", "Your time has expired. The quiz will be submitted automatically.");
+                handleTimeout();
             } else {
                 timeLeftInSeconds--;
             }
@@ -50,19 +52,80 @@
             countdownTimer = setInterval(updateTimer, 1000);
         }
 
-        function showPopup(title, message) {
+        function setUnansweredQuestionsToZero() {
+            questions.forEach((question, index) => {
+                if (!userAnswers[question.questionId]) {
+                    userAnswers[question.questionId] = ''; 
+                }
+            });
+        }
+
+        function saveAnswers() {
+            let form = $("#quiz-form");
+            form.find("input[type=hidden]").remove();
+            questions.forEach((question, index) => {
+                form.append(`<input type="hidden" name="[${index}].QuestionId" value="${question.questionId}" />`);
+                form.append(`<input type="hidden" name="[${index}].Answer.ChoiceId" value="${userAnswers[question.questionId]}" />`);
+            });
+            form.submit();
+            window.isSubmitted = true;
+        }
+
+        function showPopup(title, message, isTimeUp = false) {
             $("#popup-message-title").text(title);
             $("#popup-message-text").text(message);
 
-            popupInstance.option("contentTemplate", function () {
-                let contentDiv = $("<div>").append(
-                    $("<h4>").text(title).addClass("popup-title"),
-                    $("<p>").text(message).addClass("popup-message-text")
-                );
-                return contentDiv;
-            });
+            if (isTimeUp) {
+                popupInstance.option({
+                    contentTemplate: function () {
+                        let contentDiv = $("<div>").append(
+                            $("<h4>").text(title),
+                            $("<p>").text(message)
+                        );
+                        return contentDiv;
+                    },
+                    showCloseButton: false
+                });
+
+                setTimeout(function() {
+                    setUnansweredQuestionsToZero();
+                    saveAnswers();
+                    window.isSubmitted = true;
+                }, 10000);
+            }
+            else {
+                popupInstance.option("contentTemplate", function () {
+                    let contentDiv = $("<div>").append(
+                        $("<h4>").text(title),
+                        $("<p>").text(message),
+                        $("<div>").dxButton({
+                            text: "Yes",
+                            onClick: function () {
+                                setUnansweredQuestionsToZero();
+                                saveAnswers();
+                                window.isSubmitted = true;
+                            }
+                        }),
+                        $("<div>").dxButton({
+                            text: "No",
+                            onClick: function () {
+                                popupInstance.option("visible", false);
+                            }
+                        })
+                    );
+                    return contentDiv;
+                });
+            }
 
             popupInstance.option("visible", true);
+        }
+
+        function handleTimeout() {
+            showPopup("Time's up!", "Your time has expired. The quiz will be submitted automatically.", true);
+        }
+
+        function handleIncompleteAnswers() {
+            showPopup("Incomplete Answers", "You have unanswered questions, but we will submit them for you.");
         }
 
         function renderQuestion() {
@@ -110,17 +173,11 @@
                 onClick: () => {
                     let unansweredQuestions = questions.filter(q => !userAnswers[q.questionId]);
                     if (unansweredQuestions.length > 0) {
-                        showPopup("Incomplete Answers", "Please answer all the questions before submitting.");
+                        handleIncompleteAnswers();
                         return;
                     }
 
-                    let form = $("#quiz-form");
-                    form.find("input[type=hidden]").remove();
-                    questions.forEach((question, index) => {
-                        form.append(`<input type="hidden" name="[${index}].QuestionId" value="${question.questionId}" />`);
-                        form.append(`<input type="hidden" name="[${index}].Answer.ChoiceId" value="${userAnswers[question.questionId]}" />`);
-                    });
-                    form.submit();
+                    saveAnswers();
                 }
             });
         }
@@ -128,15 +185,14 @@
         $(function () {
             renderQuestion();
             startTimer();
-
             popupInstance = $("#popup-container").dxPopup({
                 visible: false,
                 dragEnabled: true,
                 closeOnOutsideClick: false,
                 showTitle: true,
-                title: "Message",
-                width: 300,
-                height: 200
+                title: "Notice",
+                width: 400,
+                height: 220
             }).dxPopup("instance");
         });
     </script>
