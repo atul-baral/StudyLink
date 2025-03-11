@@ -10,6 +10,8 @@ namespace StudyLink.Domain.Entities
     {
         public int QuestionTypeId { get; set; }
         public string TypeName { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsPublished { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }

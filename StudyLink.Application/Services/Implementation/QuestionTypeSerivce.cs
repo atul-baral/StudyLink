@@ -19,7 +19,9 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<IEnumerable<QuestionType>> GetAllQuestionTypesAsync()
         {
-            return await _unitOfWork.QuestionTypes.GetAllAsync();
+            var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync();
+
+            return questionTypes.OrderByDescending(x => x.SortOrder);
         }
 
         public async Task<QuestionType> GetQuestionTypeByIdAsync(int id)
@@ -29,9 +31,13 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task AddQuestionTypeAsync(QuestionType questionType)
         {
+            var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync();
+            var maxSortOrder = questionTypes.OrderByDescending(q => q.SortOrder).FirstOrDefault();
+            questionType.SortOrder = maxSortOrder != null ? maxSortOrder.SortOrder + 1 : 1;
             await _unitOfWork.QuestionTypes.AddAsync(questionType);
             await _unitOfWork.CompleteAsync();
         }
+
 
         public async Task UpdateQuestionTypeAsync(QuestionType questionType)
         {
@@ -53,5 +59,29 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
+        public async Task UpdateOrderAsync(List<QuestionType> updatedQuestionTypes)
+        {
+            foreach (var questionType in updatedQuestionTypes)
+            {
+                var existingQuestionType = await _unitOfWork.QuestionTypes.GetAsync(u => u.QuestionTypeId == questionType.QuestionTypeId);
+                if (existingQuestionType != null)
+                {
+                    existingQuestionType.SortOrder = questionType.SortOrder;
+                    _unitOfWork.QuestionTypes.UpdateAsync(existingQuestionType);
+                }
+            }
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task TogglePublishStatusAsync(int questionTypeId, bool isPublished)
+        {
+            var questionType = await _unitOfWork.QuestionTypes.GetAsync(u => u.QuestionTypeId == questionTypeId);
+            if (questionType != null)
+            {
+                questionType.IsPublished = isPublished;
+                _unitOfWork.QuestionTypes.UpdateAsync(questionType);
+                await _unitOfWork.CompleteAsync();
+            }
+        }
     }
 }

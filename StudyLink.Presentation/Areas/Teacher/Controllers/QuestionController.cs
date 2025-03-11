@@ -17,11 +17,13 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
     {
         private readonly IQuestionService _questionService;
         private readonly IQuestionTypeService _questionTypeService;
+        private readonly IAnswerService _answerService;
 
-        public QuestionController(IQuestionService questionService, IQuestionTypeService questionTypeService)
+        public QuestionController(IQuestionService questionService, IQuestionTypeService questionTypeService, IAnswerService answerService)
         {
             _questionService = questionService;
             _questionTypeService = questionTypeService;
+            _answerService = answerService;
         }
 
         public async Task<IActionResult> Index(int id)
@@ -40,8 +42,13 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         public async Task<IActionResult> QuestionTypes(int id)
         {
             HttpContext.Session.SetString("SubjectId", id.ToString());
+
             var questionTypes = await _questionTypeService.GetAllQuestionTypesAsync();
-            return View(questionTypes);
+            var filteredAndOrderedQuestionTypes = questionTypes
+                .OrderByDescending(x => x.SortOrder)
+                .ToList();
+
+            return View(filteredAndOrderedQuestionTypes);
         }
 
         public IActionResult Create()
@@ -124,6 +131,19 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                 Console.WriteLine($"An error occurred: {ex.Message}");
                 TempData["Error"] = $"An error occurred.";
                 return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<IActionResult> GetStudentResults(int id)
+        {
+            try
+            {
+                var questions = await _answerService.GetAllStudentsQuestionTypeResults(id);
+                return View(questions);
+            }
+            catch (Exception ex)
+            {
+                return this.Handle(ex.Message);
             }
         }
     }

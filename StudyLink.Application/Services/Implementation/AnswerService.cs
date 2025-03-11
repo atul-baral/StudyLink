@@ -90,14 +90,26 @@ namespace StudyLink.Application.Services.Implementation
             int studentId = (int)await _studentSerivce.GetStudentIdByUserIdAsync(user.Id);
 
             var questionTypeIds = (await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted))
-                                                .Select(q => q.QuestionTypeId).Distinct();
+                .Select(q => q.QuestionTypeId)
+                .Distinct();
 
             var questionTypeResults = new List<QuestionTypeResultVM>();
 
             foreach (var questionTypeId in questionTypeIds)
             {
-                var questionType = await _unitOfWork.QuestionTypes.GetAsync(u => u.QuestionTypeId == questionTypeId);
-                var totalQuestions = (await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId)).Count();
+                var questionType = (await _unitOfWork.QuestionTypes
+                    .GetAllAsync(u => u.QuestionTypeId == questionTypeId && u.IsPublished == true))
+                    .OrderByDescending(x => x.SortOrder)
+                    .FirstOrDefault();
+
+                if (questionType == null)
+                {
+                    continue;
+                }
+
+                var totalQuestions = (await _unitOfWork.Questions
+                    .GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId))
+                    .Count();
 
                 var correctAnswers = await _unitOfWork.Answers.CountAsync(
                     a => a.Question.SubjectId == subjectId &&
@@ -124,5 +136,64 @@ namespace StudyLink.Application.Services.Implementation
 
             return questionTypeResults;
         }
+
+        public async Task<IEnumerable<StudentQuestionTypeResultVM>> GetAllStudentsQuestionTypeResults(int id)
+        {
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+
+            var subject = await _unitOfWork.Subjects.GetAsync(s => s.SubjectId == subjectId);
+            string subjectName = subject.SubjectName;
+
+            var students = await _unitOfWork.Students.GetAllAsync(
+                s => s.StudentSubjects.Any(ss => ss.SubjectId == subjectId),
+                includeProperties: "User"
+            );
+
+            var studentResults = new List<StudentQuestionTypeResultVM>();
+
+            foreach (var student in students)
+            {
+                bool hasAnswered = await _unitOfWork.Answers.AnyAsync(
+                    a => a.StudentId == student.StudentId &&
+                         a.Question.SubjectId == subjectId &&
+                         a.Question.QuestionTypeId == id
+                );
+
+                if (hasAnswered)
+                {
+                    var studentId = student.StudentId;
+                    var studentName = $"{student.User.FirstName} {student.User.LastName}";
+
+                    var totalQuestions = (await _unitOfWork.Questions
+                        .GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == id && !q.IsDeleted))
+                        .Count();
+
+                    var correctAnswers = await _unitOfWork.Answers.CountAsync(
+                        a => a.Question.SubjectId == subjectId &&
+                             a.Question.QuestionTypeId == id &&
+                             a.StudentId == studentId &&
+                             a.SelectedChoice.IsCorrect,
+                        includeProperties: "Question"
+                    );
+
+                    studentResults.Add(new StudentQuestionTypeResultVM
+                    {
+                        StudentId = studentId,
+                        StudentName = studentName,
+                        TotalQuestions = totalQuestions,
+                        TotalCorrectAnswers = correctAnswers,
+                        QuestionTypeName = (await _unitOfWork.QuestionTypes.GetAsync(qt => qt.QuestionTypeId == id))?.TypeName,
+                        SubjectName = subjectName
+                    });
+                }
+            }
+
+            return studentResults;
+        }
+
+
+
+
+
     }
 }

@@ -24,7 +24,6 @@
 @section Scripts {
     <script>
         var questionTypes = @Html.Raw(Json.Serialize(Model));
-        var selectedQuestionTypeId = null;
 
         var deletePopup = $("#deletePopup").dxPopup({
             title: "Delete Confirmation",
@@ -32,18 +31,75 @@
             dragEnabled: true,
             closeOnOutsideClick: true,
             width: 315,
-            height: 210,
-            onHiding: function () {
-                selectedQuestionTypeId = null;
-            }
+            height: 210
         }).dxPopup("instance");
 
         $("#questionTypeDataGrid").dxDataGrid({
-            dataSource: questionTypes,
+                dataSource: questionTypes,
+        keyExpr: "questionTypeId",
+        showBorders: true,
+        rowDragging: {
+            allowReordering: true,
+            onReorder: function (e) {
+                var visibleRows = e.component.getVisibleRows();
+                var newData = [];
+
+                visibleRows.forEach((row, index) => {
+                    row.data.sortOrder = index + 1; 
+                    newData.push(row.data);
+                });
+
+                e.component.option("dataSource", newData); 
+                e.component.refresh(); 
+
+                $.ajax({
+                    url: '@Url.Action("UpdateOrder", "QuestionTypeManage", new { area = "Admin" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(newData),
+                    success: function (data) {
+                        if (data.success) {
+                            $('#questionTypeDataGrid').dxDataGrid('instance').refresh();
+                            toastr.success(data.message);
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    }
+                });
+            }
+        },
             columns: [
                 {
                     dataField: "typeName",
                     caption: "Type Name"
+                },
+                {
+                    dataField: "isPublished",
+                    caption: "Publish",
+                    cellTemplate: function (container, options) {
+                        $("<div>")
+                            .dxSwitch({
+                                value: options.value,
+                                onValueChanged: function (e) {
+                                    $.ajax({
+                                        url: '@Url.Action("TogglePublishStatus", "QuestionTypeManage", new { area = "Admin" })',
+                                        type: 'POST',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({
+                                            questionTypeId: options.row.data.questionTypeId,
+                                            isPublished: e.value
+                                        }),
+                                        success: function (data) {
+                                            if (data.success) {
+                                                toastr.success(data.message); 
+                                            } else {
+                                                toastr.error(data.message);
+                                            }
+                                        }
+                                    });
+                                }
+                            }).appendTo(container);
+                    }
                 },
                 {
                     caption: "Actions",
@@ -60,17 +116,15 @@
                         {
                             icon: "bi bi-trash",
                             onClick: function (e) {
-                                  deletePopup.show();
-                                  $("#QuestionTypeId").val(e.row.data.questionTypeId);
+                                deletePopup.show();
+                                $("#QuestionTypeId").val(e.row.data.questionTypeId);
                             },
                             cssClass: "fs-6 text-danger mx-1"
                         }
                     ]
                 }
             ],
-            paging: {
-                pageSize: 5
-            },
+            paging: { pageSize: 5 },
             pager: {
                 visible: true,
                 showPageSizeSelector: true,
@@ -78,37 +132,8 @@
                 showNavigationButtons: true,
                 displayMode: "compact"
             },
-            toolbar: {
-                items: [
-                    {
-                        widget: "dxButton",
-                        options: {
-                            text: "Add Question Type",
-                            icon: "bi bi-plus-circle",
-                            elementAttr: {
-                               style: "background-color: #007bff !important; color: white;"
-                            },
-                            iconCssClass: "text-white",
-                            onClick: function () {
-                                window.location.href = '@Url.Action("Create", "QuestionTypeManage", new { area = "Admin" })';
-                            }
-                        },
-                        location: "before"
-                    },
-                    {
-                        name: "searchPanel",
-                        location: "after"
-                    }
-                ]
-            },
-            searchPanel: {
-                visible: true,
-                width: 200,
-                placeholder: "Search..."
-            },
-            filterRow: {
-                visible: false
-            },
+            searchPanel: { visible: true, width: 200, placeholder: "Search..." },
+            filterRow: { visible: false },
             onContentReady: function () {
                 $(".dx-gridbase-a11y-status-container").hide();
             }
@@ -117,6 +142,5 @@
         $(document).on("click", "#cancelDeleteBtn", function () {
             deletePopup.hide();
         });
-
     </script>
 }

@@ -114,5 +114,38 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrder([FromBody] List<QuestionType> updatedQuestionTypes)
+        {
+            try
+            {
+                await _questionTypeService.UpdateOrderAsync(updatedQuestionTypes);
+                //return RedirectToAction(nameof(Index));
+                return Json(new { success = true, message = "Sort order updated successfully!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while updating the sort order." });
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePublishStatus([FromBody] QuestionType questionType)
+        {
+            try
+            {
+                await _questionTypeService.TogglePublishStatusAsync(questionType.QuestionTypeId, questionType.IsPublished);
+                return Json(new { success = true, message = "Publish status updated successfully!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while updating the toggle publish." });
+            }
+        }
+
     }
 }

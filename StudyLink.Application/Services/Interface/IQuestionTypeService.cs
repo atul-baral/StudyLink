@@ -15,5 +15,7 @@ namespace StudyLink.Application.Services.Interface
         Task AddQuestionTypeAsync(QuestionType questionType);
         Task UpdateQuestionTypeAsync(QuestionType questionType);
         Task DeleteQuestionTypeAsync(int id);
+        Task UpdateOrderAsync(List<QuestionType> updatedQuestionTypes);
+        Task TogglePublishStatusAsync(int questionTypeId, bool isActive);
     }
 }
