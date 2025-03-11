@@ -1,36 +1,23 @@
-﻿@model IEnumerable<StudentQuestionTypeResultVM>
+﻿@model StudentQuestionTypeResultVM
 
-@{
-    ViewData["Title"] = "Student Results";
-}
+<h3>@Model.SubjectName - @Model.QuestionTypeName</h3>
 
-<div class="container my-5">
-    <div class="content-above text-center mb-5">
-        <h4 class="display-4 font-weight-light">@Model.FirstOrDefault()?.SubjectName</h4>
-        <p class="lead text-muted">Results for @Model.FirstOrDefault()?.QuestionTypeName</p>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Total Questions</th>
-                        <th>Correct Answers</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var result in Model)
-                    {
-                        <tr>
-                            <td>@result.StudentName</td>
-                            <td>@result.TotalQuestions</td>
-                            <td>@result.TotalCorrectAnswers</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Total Questions</th>
+            <th>Total Correct Answers</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model.StudentResults)
+        {
+            <tr>
+                <td>@student.StudentName</td>
+                <td>@student.TotalQuestions</td>
+                <td>@student.TotalCorrectAnswers</td>
+            </tr>
+        }
+    </tbody>
+</table>

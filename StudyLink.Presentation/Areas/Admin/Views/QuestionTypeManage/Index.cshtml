@@ -59,7 +59,7 @@
                     data: JSON.stringify(newData),
                     success: function (data) {
                         if (data.success) {
-                            $('#questionTypeDataGrid').dxDataGrid('instance').refresh();
+                             window.location.reload();
                             toastr.success(data.message);
                         } else {
                             toastr.error(data.message);

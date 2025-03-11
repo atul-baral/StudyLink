@@ -16,6 +16,6 @@ namespace StudyLink.Application.Services.Interface
         Task UpdateAnswerAsync(Answer answer);
         Task DeleteAnswerAsync(int id);
         Task<IEnumerable<QuestionTypeResultVM>> GetAllQuestionTypeWithResult(int id);
-        Task<IEnumerable<StudentQuestionTypeResultVM>> GetAllStudentsQuestionTypeResults(int id);
+        Task<StudentQuestionTypeResultVM> GetAllStudentsQuestionTypeResults(int id);
     }
 }

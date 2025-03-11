@@ -137,19 +137,22 @@ namespace StudyLink.Application.Services.Implementation
             return questionTypeResults;
         }
 
-        public async Task<IEnumerable<StudentQuestionTypeResultVM>> GetAllStudentsQuestionTypeResults(int id)
+        public async Task<StudentQuestionTypeResultVM> GetAllStudentsQuestionTypeResults(int id)
         {
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
 
             var subject = await _unitOfWork.Subjects.GetAsync(s => s.SubjectId == subjectId);
             string subjectName = subject.SubjectName;
 
+            var questionType = await _unitOfWork.QuestionTypes.GetAsync(qt => qt.QuestionTypeId == id);
+            string questionTypeName = questionType.TypeName;
+
             var students = await _unitOfWork.Students.GetAllAsync(
                 s => s.StudentSubjects.Any(ss => ss.SubjectId == subjectId),
                 includeProperties: "User"
             );
 
-            var studentResults = new List<StudentQuestionTypeResultVM>();
+            var studentResults = new List<StudentResultVM>();
 
             foreach (var student in students)
             {
@@ -176,23 +179,23 @@ namespace StudyLink.Application.Services.Implementation
                         includeProperties: "Question"
                     );
 
-                    studentResults.Add(new StudentQuestionTypeResultVM
+                    studentResults.Add(new StudentResultVM
                     {
                         StudentId = studentId,
                         StudentName = studentName,
                         TotalQuestions = totalQuestions,
-                        TotalCorrectAnswers = correctAnswers,
-                        QuestionTypeName = (await _unitOfWork.QuestionTypes.GetAsync(qt => qt.QuestionTypeId == id))?.TypeName,
-                        SubjectName = subjectName
+                        TotalCorrectAnswers = correctAnswers
                     });
                 }
             }
 
-            return studentResults;
+            return new StudentQuestionTypeResultVM
+            {
+                QuestionTypeName = questionTypeName,  
+                SubjectName = subjectName,           
+                StudentResults = studentResults  
+            };
         }
-
-
-
 
 
     }
