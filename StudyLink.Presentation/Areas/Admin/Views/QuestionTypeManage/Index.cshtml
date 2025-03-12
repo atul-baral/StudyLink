@@ -71,7 +71,18 @@
             columns: [
                 {
                     dataField: "typeName",
-                    caption: "Type Name"
+                    caption: "Type Name",
+                     alignment: "left"
+                },
+                                {
+                    dataField: "fullMarks",
+                    caption: "Full Marks",
+                     alignment: "left"
+                },
+                                {
+                    dataField: "passMarks",
+                    caption: "Pass Marks",
+                     alignment: "left"
                 },
                 {
                     dataField: "isPublished",
@@ -132,8 +143,37 @@
                 showNavigationButtons: true,
                 displayMode: "compact"
             },
-            searchPanel: { visible: true, width: 200, placeholder: "Search..." },
-            filterRow: { visible: false },
+                       toolbar: {
+                items: [
+                    {
+                        widget: "dxButton",
+                        options: {
+                            text: "Add Type",
+                            icon: "bi bi-plus-circle",
+                            elementAttr: {
+                               style: "background-color: #007bff !important; color: white;"
+                            },
+                            iconCssClass: "text-white",
+                            onClick: function () {
+                                window.location.href = '@Url.Action("Create", "QuestionTypeManage", new { area = "Admin" })';
+                            }
+                        },
+                        location: "before"
+                    },
+                    {
+                        name: "searchPanel",
+                        location: "after"
+                    }
+                ]
+            },
+            searchPanel: {
+                visible: true,
+                width: 200,
+                placeholder: "Search..."
+            },
+            filterRow: {
+                visible: false
+            },
             onContentReady: function () {
                 $(".dx-gridbase-a11y-status-container").hide();
             }

@@ -4,35 +4,65 @@
     ViewData["Title"] = "Add Question Type";
 }
 
-<h2>Add QuestionType</h2>
+<h2>Add Question Type</h2>
 
-
-<form asp-area="Admin" asp-area="QuestionTypeManage" asp-action="Create" id="form-container" method="post">
+<form asp-area="Admin" asp-controller="QuestionTypeManage" asp-action="Create" id="form-container" method="post">
     <div id="form"></div>
 </form>
+
 @section Scripts {
     <script>
-        $("#form").dxForm({
-            id: "form",
-            labelLocation: "top",
-            showColonAfterLabel: false,
-            formData: {},
-            items: [{
-                itemType: "group",
-                caption: "Question Type Information",
-                colCount: 2,
+        $(function () {
+            $("#form").dxForm({
+                id: "form",
+                labelLocation: "top",
+                showColonAfterLabel: false,
+                formData: {},
                 items: [
-                    { dataField: "typeName", isRequired: true }
+                    {
+                        itemType: "group",
+                        caption: "Question Type Information",
+                        colCount: 2,
+                        items: [
+                            {
+                                dataField: "typeName",
+                                label: { text: "Question Type Name" },
+                                isRequired: true
+                            },
+                            {
+                                dataField: "fullMarks",
+                                label: { text: "Full Marks" },
+                                editorType: "dxNumberBox",
+                                editorOptions: {
+                                    min: 0,
+                                    showSpinButtons: true,
+                                    format: "#0"
+                                },
+                                isRequired: true
+                            },
+                            {
+                                dataField: "passMarks",
+                                label: { text: "Pass Marks" },
+                                editorType: "dxNumberBox",
+                                editorOptions: {
+                                    min: 0,
+                                    showSpinButtons: true,
+                                    format: "#0"
+                                },
+                                isRequired: true
+                            }
+                        ]
+                    },
+                    {
+                        itemType: "button",
+                        horizontalAlignment: "center",
+                        buttonOptions: {
+                            text: "Submit",
+                            useSubmitBehavior: true
+                        }
+                    }
                 ]
-            }, {
-                itemType: "button",
-                horizontalAlignment: "center",
-                buttonOptions: {
-                    text: "Submit",
-                    useSubmitBehavior: true
-                }
-            }]
+            });
         });
     </script>
- }
-
+}
