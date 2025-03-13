@@ -431,3 +431,12 @@ E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.pdb
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\StudyLink.Presentation.genruntimeconfig.cache
 E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\obj\Debug\net9.0\ref\StudyLink.Presentation.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+E:\PROJECTS\Spiral_PRJ\Intern\StudyLink\StudyLink.Presentation\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll

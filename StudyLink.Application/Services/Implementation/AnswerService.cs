@@ -20,15 +20,21 @@ namespace StudyLink.Application.Services.Implementation
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStudentService _studentSerivce;
+        private readonly IQuestionService _questionService;
+        private readonly IQuestionTypeService _questionTypeService;
+        private readonly ISubjectService _subjectService;
         private readonly IMapper _mapper;
 
-        public AnswerService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IStudentService studentService, IMapper mapper)
+        public AnswerService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IStudentService studentService, IMapper mapper, IQuestionService questionService, IQuestionTypeService questionTypeService, ISubjectService subjectService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _studentSerivce = studentService;
+            _questionService = questionService;
+            _questionTypeService = questionTypeService;
+            _subjectService = subjectService;
         }
 
         public async Task AddAnswersAsync(IEnumerable<AddAnswerVM> addAnswersVM)
@@ -78,6 +84,25 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.CompleteAsync();
         }
 
+        public async Task<int> GetCorrectAnswerCount(int subjectId, int questionTypeId)
+        {
+            return await _unitOfWork.Answers.CountAsync(
+                a => a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId &&
+                     a.SelectedChoice.IsCorrect,
+                includeProperties: "Question"
+            );
+        }
+
+        public async Task<bool> HasStudentAnswered(int subjectId, int questionTypeId, int studentId)
+        {
+            return await _unitOfWork.Answers.AnyAsync(
+                a => a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId &&
+                     a.StudentId == studentId
+            );
+        }
+
         public async Task<IEnumerable<QuestionTypeResultVM>> GetAllQuestionTypeWithResult(int id)
         {
             if (id > 0)
@@ -87,116 +112,59 @@ namespace StudyLink.Application.Services.Implementation
 
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            int studentId = (int)await _studentSerivce.GetStudentIdByUserIdAsync(user.Id);
-
-            var questionTypeIds = (await _unitOfWork.Questions.GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted))
-                .Select(q => q.QuestionTypeId)
-                .Distinct();
-
+            int studentId = await _studentSerivce.GetStudentIdByUserIdAsync(user.Id);
+            var questionTypes = await _questionTypeService.GetPublishedQuestionTypesBySubjectId(subjectId);
             var questionTypeResults = new List<QuestionTypeResultVM>();
 
-            foreach (var questionTypeId in questionTypeIds)
+            foreach (var questionType in questionTypes)
             {
-                var questionType = (await _unitOfWork.QuestionTypes
-                    .GetAllAsync(u => u.QuestionTypeId == questionTypeId && u.IsPublished == true))
-                    .OrderByDescending(x => x.SortOrder)
-                    .FirstOrDefault();
-
-                if (questionType == null)
-                {
-                    continue;
-                }
-
-                var totalQuestions = (await _unitOfWork.Questions
-                    .GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId))
-                    .Count();
-
-                var correctAnswers = await _unitOfWork.Answers.CountAsync(
-                    a => a.Question.SubjectId == subjectId &&
-                         a.Question.QuestionTypeId == questionTypeId &&
-                         a.SelectedChoice.IsCorrect,
-                    includeProperties: "Question"
-                );
-
-                var isAnswered = await _unitOfWork.Answers.AnyAsync(
-                    a => a.Question.SubjectId == subjectId &&
-                         a.Question.QuestionTypeId == questionTypeId &&
-                         a.StudentId == studentId
-                );
-
+                int totalQuestions = await _questionService.GetTotalQuestionCount(subjectId, questionType.QuestionTypeId);
+                int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
+                bool hasAnswered = await HasStudentAnswered(subjectId, questionType.QuestionTypeId, studentId);
                 questionTypeResults.Add(new QuestionTypeResultVM
                 {
-                    QuestionTypeId = questionTypeId,
+                    QuestionTypeId = questionType.QuestionTypeId,
                     QuestionTypeName = questionType.TypeName,
                     TotalQuestions = totalQuestions,
-                    TotalCorrectAnswers = correctAnswers,
-                    IsAnswered = isAnswered
+                    TotalCorrectAnswers = correctAnswerCount,
+                    IsAnswered = hasAnswered
                 });
             }
-
             return questionTypeResults;
         }
 
         public async Task<StudentQuestionTypeResultVM> GetAllStudentsQuestionTypeResults(int id)
         {
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
-
-            var subject = await _unitOfWork.Subjects.GetAsync(s => s.SubjectId == subjectId);
-            string subjectName = subject.SubjectName;
-
-            var questionType = await _unitOfWork.QuestionTypes.GetAsync(qt => qt.QuestionTypeId == id);
-            string questionTypeName = questionType.TypeName;
-
-            var students = await _unitOfWork.Students.GetAllAsync(
-                s => s.StudentSubjects.Any(ss => ss.SubjectId == subjectId),
-                includeProperties: "User"
-            );
-
+            var subject = await _subjectService.GetSubjectByIdAsync(subjectId);
+            var questionType = await _questionTypeService.GetQuestionTypeByIdAsync(id);
+            var students = await _studentSerivce.GetStudentListBySubjectId(subjectId);
             var studentResults = new List<StudentResultVM>();
 
             foreach (var student in students)
             {
-                bool hasAnswered = await _unitOfWork.Answers.AnyAsync(
-                    a => a.StudentId == student.StudentId &&
-                         a.Question.SubjectId == subjectId &&
-                         a.Question.QuestionTypeId == id
-                );
-
-                if (hasAnswered)
+                if (await HasStudentAnswered(subjectId, questionType.QuestionTypeId, student.StudentId))
                 {
                     var studentId = student.StudentId;
                     var studentName = $"{student.User.FirstName} {student.User.LastName}";
-
-                    var totalQuestions = (await _unitOfWork.Questions
-                        .GetAllAsync(q => q.SubjectId == subjectId && q.QuestionTypeId == id && !q.IsDeleted))
-                        .Count();
-
-                    var correctAnswers = await _unitOfWork.Answers.CountAsync(
-                        a => a.Question.SubjectId == subjectId &&
-                             a.Question.QuestionTypeId == id &&
-                             a.StudentId == studentId &&
-                             a.SelectedChoice.IsCorrect,
-                        includeProperties: "Question"
-                    );
-
+                    int totalQuestionCount = await _questionService.GetTotalQuestionCount(subjectId, questionType.QuestionTypeId);
+                    int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
                     studentResults.Add(new StudentResultVM
                     {
                         StudentId = studentId,
                         StudentName = studentName,
-                        TotalQuestions = totalQuestions,
-                        TotalCorrectAnswers = correctAnswers
+                        TotalQuestions = totalQuestionCount,
+                        TotalCorrectAnswers = correctAnswerCount
                     });
                 }
             }
 
             return new StudentQuestionTypeResultVM
             {
-                QuestionTypeName = questionTypeName,  
-                SubjectName = subjectName,           
+                QuestionTypeName = questionType.TypeName,  
+                SubjectName = subject.SubjectName,           
                 StudentResults = studentResults  
             };
         }
-
-
     }
 }

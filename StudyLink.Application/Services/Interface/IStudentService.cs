@@ -16,6 +16,7 @@ namespace StudyLink.Application.Services.Interface
         Task UpdateStudentAsync(AddStudentVM student);
         Task DeleteStudentAsync(int id);
         Task<Student> GetStudentByUserIdForSubjectsAsync(string userId);
-        Task<int?> GetStudentIdByUserIdAsync(string userId);
+        Task<int> GetStudentIdByUserIdAsync(string userId);
+        Task<IEnumerable<Student>> GetStudentListBySubjectId(int subjectId);
     }
 }

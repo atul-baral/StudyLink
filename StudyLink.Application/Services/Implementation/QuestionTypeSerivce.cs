@@ -83,5 +83,25 @@ namespace StudyLink.Application.Services.Implementation
                 await _unitOfWork.CompleteAsync();
             }
         }
+
+        public async Task<IEnumerable<QuestionType>> GetPublishedQuestionTypesBySubjectId(int subjectId)
+        {
+
+            var questions = await _unitOfWork.Questions
+                .GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted, includeProperties: "QuestionType");
+
+
+            var questionTypes = questions
+                .Select(q => q.QuestionType) 
+                .Distinct()  
+                .Where(qt => qt.IsPublished && !qt.IsDeleted)  
+                .OrderByDescending(qt => qt.SortOrder)
+                .ToList();
+
+            return questionTypes;
+        }
+
+
+
     }
 }
