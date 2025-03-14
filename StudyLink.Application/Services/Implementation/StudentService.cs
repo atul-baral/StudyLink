@@ -24,7 +24,7 @@ namespace StudyLink.Application.Services.Implementation
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AddStudentVM>> GetAllStudentsAsync()
+        public async Task<IEnumerable<AddStudentVM>> GetList()
         {
             var students = await _unitOfWork.Students.GetAllAsync(includeProperties: "StudentSubjects,User");
             var studentVMs = new List<AddStudentVM>();
@@ -37,13 +37,13 @@ namespace StudyLink.Application.Services.Implementation
             return studentVMs;
         }
 
-        public async Task<AddStudentVM> GetStudentByIdAsync(int id)
+        public async Task<AddStudentVM> GetById(int id)
         {
             var student = await _unitOfWork.Students.GetAsync(u => u.StudentId == id, includeProperties: "StudentSubjects,User");
-            return  _mapper.Map<AddStudentVM>(student);
+            return _mapper.Map<AddStudentVM>(student);
         }
 
-        public async Task AddStudentAsync(AddStudentVM studentVM)
+        public async Task Add(AddStudentVM studentVM)
         {
             foreach (var studentSubject in studentVM.StudentSubjects)
             {
@@ -66,7 +66,7 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateStudentAsync(AddStudentVM student)
+        public async Task Update(AddStudentVM student)
         {
             var existingStudent = await _unitOfWork.Students.GetAsync(s => s.StudentId == student.StudentId, includeProperties: "StudentSubjects");
 
@@ -107,12 +107,11 @@ namespace StudyLink.Application.Services.Implementation
             }
 
             _mapper.Map(student, existingStudent);
-            //existingStudent.UserId = user.Id;
             await _unitOfWork.Students.UpdateAsync(existingStudent);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteStudentAsync(int id)
+        public async Task Delete(int id)
         {
             var student = await _unitOfWork.Students.GetAsync(u => u.StudentId == id);
             if (student != null)
@@ -126,27 +125,14 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<Student> GetStudentByUserIdForSubjectsAsync(string userId)
+
+        public async Task<int> GetIdByUserId(string userId)
         {
-            var student = await _unitOfWork.Students.GetAsync(
-                t => t.UserId == userId,
-                includeProperties: "StudentSubjects.Subject");
-
-            if (student != null)
-            {
-                student.StudentSubjects = student.StudentSubjects.Where(ss => !ss.IsDeleted).ToList();
-            }
-
-            return student;
+            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId);
+            return student?.StudentId ?? 0;
         }
 
-        public async Task<int> GetStudentIdByUserIdAsync(string userId)
-        {
-            var student = await _unitOfWork.Students.GetAsync(t => t.UserId == userId);
-            return student?.StudentId ?? 0; 
-        }
-
-        public async Task<IEnumerable<Student>> GetStudentListBySubjectId(int subjectId)
+        public async Task<IEnumerable<Student>> GetListBySubjectId(int subjectId)
         {
             return await _unitOfWork.Students.GetAllAsync(
                 s => s.StudentSubjects.Any(ss => ss.SubjectId == subjectId),

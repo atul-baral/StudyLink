@@ -25,7 +25,15 @@ namespace StudyLink.Application.Services.Implementation
         private readonly ISubjectService _subjectService;
         private readonly IMapper _mapper;
 
-        public AnswerService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IStudentService studentService, IMapper mapper, IQuestionService questionService, IQuestionTypeService questionTypeService, ISubjectService subjectService)
+        public AnswerService(
+            IUnitOfWork unitOfWork, 
+            UserManager<ApplicationUser> userManager,
+            IHttpContextAccessor httpContextAccessor,
+            IStudentService studentService,
+            IMapper mapper,
+            IQuestionService questionService,
+            IQuestionTypeService questionTypeService,
+            ISubjectService subjectService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -37,28 +45,20 @@ namespace StudyLink.Application.Services.Implementation
             _subjectService = subjectService;
         }
 
-        public async Task AddAnswersAsync(IEnumerable<AddAnswerVM> addAnswersVM)
+        public async Task Add(List<AddAnswerVM> addAnswersVM)
         {
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            int studentId = (int)await _studentSerivce.GetStudentIdByUserIdAsync(user.Id);
+            int studentId = (int)await _studentSerivce.GetIdByUserId(user.Id);
             var answers = _mapper.Map<IEnumerable<Answer>>(addAnswersVM);
             foreach (var answer in answers)
             {
                 answer.StudentId = studentId;
             }
             await _unitOfWork.Answers.AddRangeAsync(answers);
-            try
-            {
-                await _unitOfWork.CompleteAsync();
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            await _unitOfWork.CompleteAsync();
         }
 
-
-        public async Task DeleteAnswerAsync(int id)
+        public async Task Delete(int id)
         {
             var answer = await _unitOfWork.Answers.GetAsync(u => u.AnswerId == id);
             if (answer != null)
@@ -68,17 +68,17 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<IEnumerable<Answer>> GetAllAnswersAsync()
+        public async Task<IEnumerable<Answer>> GetList()
         {
             return await _unitOfWork.Answers.GetAllAsync();
         }
 
-        public async Task<Answer> GetAnswerByIdAsync(int id)
+        public async Task<Answer> GetById(int id)
         {
             return await _unitOfWork.Answers.GetAsync(u => u.QuestionId == id, includeProperties: "Selected Choice");
         }
 
-        public async Task UpdateAnswerAsync(Answer answer)
+        public async Task Update(Answer answer)
         {
             await _unitOfWork.Answers.UpdateAsync(answer);
             await _unitOfWork.CompleteAsync();
@@ -94,7 +94,7 @@ namespace StudyLink.Application.Services.Implementation
             );
         }
 
-        public async Task<bool> HasStudentAnswered(int subjectId, int questionTypeId, int studentId)
+        public async Task<bool> HasAnswered(int subjectId, int questionTypeId, int studentId)
         {
             return await _unitOfWork.Answers.AnyAsync(
                 a => a.Question.SubjectId == subjectId &&
@@ -103,24 +103,23 @@ namespace StudyLink.Application.Services.Implementation
             );
         }
 
-        public async Task<IEnumerable<QuestionTypeResultVM>> GetAllQuestionTypeWithResult(int id)
+        public async Task<List<QuestionTypeResultVM>> GetQuestionTypeResultList(int subjectId)
         {
-            if (id > 0)
+            if (subjectId > 0)
             {
-                _httpContextAccessor.HttpContext.Session.SetString("SubjectId", id.ToString());
+                _httpContextAccessor.HttpContext.Session.SetString("SubjectId", subjectId.ToString());
             }
 
-            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            int studentId = await _studentSerivce.GetStudentIdByUserIdAsync(user.Id);
-            var questionTypes = await _questionTypeService.GetPublishedQuestionTypesBySubjectId(subjectId);
+            int studentId = await _studentSerivce.GetIdByUserId(user.Id);
+            var questionTypes = await _questionTypeService.GetPublishedListBySubjectId(subjectId);
             var questionTypeResults = new List<QuestionTypeResultVM>();
 
             foreach (var questionType in questionTypes)
             {
-                int totalQuestions = await _questionService.GetTotalQuestionCount(subjectId, questionType.QuestionTypeId);
+                int totalQuestions = await _questionService.GetQuestionCount(subjectId, questionType.QuestionTypeId);
                 int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
-                bool hasAnswered = await HasStudentAnswered(subjectId, questionType.QuestionTypeId, studentId);
+                bool hasAnswered = await HasAnswered(subjectId, questionType.QuestionTypeId, studentId);
                 questionTypeResults.Add(new QuestionTypeResultVM
                 {
                     QuestionTypeId = questionType.QuestionTypeId,
@@ -133,21 +132,21 @@ namespace StudyLink.Application.Services.Implementation
             return questionTypeResults;
         }
 
-        public async Task<StudentQuestionTypeResultVM> GetAllStudentsQuestionTypeResults(int id)
+        public async Task<StudentQuestionTypeResultVM> GetStudentResultByQuestionTypeId(int questionTypeId)
         {
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
-            var subject = await _subjectService.GetSubjectByIdAsync(subjectId);
-            var questionType = await _questionTypeService.GetQuestionTypeByIdAsync(id);
-            var students = await _studentSerivce.GetStudentListBySubjectId(subjectId);
+            var subject = await _subjectService.GetById(subjectId);
+            var questionType = await _questionTypeService.GetById(questionTypeId);
+            var students = await _studentSerivce.GetListBySubjectId(subjectId);
             var studentResults = new List<StudentResultVM>();
 
             foreach (var student in students)
             {
-                if (await HasStudentAnswered(subjectId, questionType.QuestionTypeId, student.StudentId))
+                if (await HasAnswered(subjectId, questionType.QuestionTypeId, student.StudentId))
                 {
                     var studentId = student.StudentId;
                     var studentName = $"{student.User.FirstName} {student.User.LastName}";
-                    int totalQuestionCount = await _questionService.GetTotalQuestionCount(subjectId, questionType.QuestionTypeId);
+                    int totalQuestionCount = await _questionService.GetQuestionCount(subjectId, questionType.QuestionTypeId);
                     int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
                     studentResults.Add(new StudentResultVM
                     {
@@ -161,9 +160,9 @@ namespace StudyLink.Application.Services.Implementation
 
             return new StudentQuestionTypeResultVM
             {
-                QuestionTypeName = questionType.TypeName,  
-                SubjectName = subject.SubjectName,           
-                StudentResults = studentResults  
+                QuestionTypeName = questionType.TypeName,
+                SubjectName = subject.SubjectName,
+                StudentResults = studentResults
             };
         }
     }

@@ -30,7 +30,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var questions = await _questionService.GetAllQuestionsAsync(id);
+                var questions = await _questionService.GetList(id);
                 return View(questions);
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             HttpContext.Session.SetString("SubjectId", id.ToString());
 
-            var questionTypes = await _questionTypeService.GetAllQuestionTypesAsync();
+            var questionTypes = await _questionTypeService.GetList();
             var filteredAndOrderedQuestionTypes = questionTypes
                 .OrderByDescending(x => x.SortOrder)
                 .ToList();
@@ -63,7 +63,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionService.AddQuestionAsync(question);
+                    await _questionService.Add(question);
                     TempData["Success"] = "Question created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -81,7 +81,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var question = await _questionService.GetQuestionByIdAsync(id);
+                var question = await _questionService.GetById(id);
                 if (question == null)
                 {
                     return NotFound();
@@ -103,7 +103,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionService.UpdateQuestionAsync(question);
+                    await _questionService.Update(question);
                     TempData["Success"] = "Question updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -122,7 +122,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _questionService.DeleteQuestionAsync(question.QuestionId);
+                await _questionService.Delete(question.QuestionId);
                 TempData["Success"] = "Question deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
@@ -138,7 +138,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var questions = await _answerService.GetAllStudentsQuestionTypeResults(id);
+                var questions = await _answerService.GetStudentResultByQuestionTypeId(id);
                 return View(questions);
             }
             catch (Exception ex)

@@ -24,7 +24,7 @@ namespace StudyLink.Application.Services.Implementation
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AddTeacherVM>> GetAllTeachersAsync()
+        public async Task<IEnumerable<AddTeacherVM>> GetList()
         {
             var teachers = await _unitOfWork.Teachers.GetAllAsync(includeProperties: "TeacherSubjects,User");
             var teacherVMs = new List<AddTeacherVM>();
@@ -37,13 +37,13 @@ namespace StudyLink.Application.Services.Implementation
             return teacherVMs;
         }
 
-        public async Task<AddTeacherVM> GetTeacherByIdAsync(int id)
+        public async Task<AddTeacherVM> GetById(int id)
         {
             var teacher = await _unitOfWork.Teachers.GetAsync(u => u.TeacherId == id, includeProperties: "TeacherSubjects,User");
             return _mapper.Map<AddTeacherVM>(teacher);
         }
 
-        public async Task AddTeacherAsync(AddTeacherVM teacherVM)
+        public async Task Add(AddTeacherVM teacherVM)
         {
             foreach (var teacherSubject in teacherVM.TeacherSubjects)
             {
@@ -66,7 +66,7 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateTeacherAsync(AddTeacherVM teacher)
+        public async Task Update(AddTeacherVM teacher)
         {
             var existingTeacher = await _unitOfWork.Teachers.GetAsync(s => s.TeacherId == teacher.TeacherId, includeProperties: "TeacherSubjects");
 
@@ -111,7 +111,7 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteTeacherAsync(int id)
+        public async Task Delete(int id)
         {
             var teacher = await _unitOfWork.Teachers.GetAsync(u => u.TeacherId == id);
             if (teacher != null)
@@ -125,24 +125,10 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<Teacher> GetTeacherByUserIdForSubjectsAsync(string userId)
+        public async Task<int> GetIdByUserId(string userId)
         {
-            var teacher = await _unitOfWork.Teachers.GetAsync(
-                t => t.UserId == userId,
-                includeProperties: "TeacherSubjects.Subject");
-
-            if (teacher != null)
-            {
-                teacher.TeacherSubjects = teacher.TeacherSubjects.Where(ss => !ss.IsDeleted).ToList();
-            }
-
-            return teacher;
-        }
-
-        public async Task<int?> GetTeacherIdByUserIdAsync(string userId)
-        {
-            var teacher = await _unitOfWork.Teachers.GetAsync(t => t.UserId == userId);
-            return teacher?.TeacherId;
+            var teacher = await _unitOfWork.Teachers.GetAsync(s => s.UserId == userId);
+            return teacher?.TeacherId ?? 0;
         }
     }
 }

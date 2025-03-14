@@ -9,12 +9,12 @@ namespace StudyLink.Presentation.Areas.Admin.ViewComponents
 {
     public class TeacherSubjectsViewComponent : ViewComponent
     {
-        private readonly ITeacherService _teacherService;
+        private readonly ISubjectService _subjectService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TeacherSubjectsViewComponent(ITeacherService teacherService, UserManager<ApplicationUser> userManager)
+        public TeacherSubjectsViewComponent(ISubjectService subjectService, UserManager<ApplicationUser> userManager)
         {
-            _teacherService = teacherService;
+            _subjectService = subjectService;
             _userManager = userManager;
         }
 
@@ -22,18 +22,17 @@ namespace StudyLink.Presentation.Areas.Admin.ViewComponents
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
-            var teacher = await _teacherService.GetTeacherByUserIdForSubjectsAsync(user.Id);
-            if (teacher == null || teacher.TeacherSubjects == null) return Content("No subjects assigned.");
+            var teacherSubjects = await _subjectService.GetListByUserId(user.Id);
 
             var subjects = new List<Subject>();
 
-            foreach (var teacherSubject in teacher.TeacherSubjects)
+            foreach (var teacherSubject in teacherSubjects)
             {
                 subjects.Add(new Subject
                 {
-                    SubjectId = teacherSubject.Subject.SubjectId,
-                    SubjectName = teacherSubject.Subject.SubjectName,
-                    SubjectCode = teacherSubject.Subject.SubjectCode
+                    SubjectId = teacherSubject.SubjectId,
+                    SubjectName = teacherSubject.SubjectName,
+                    SubjectCode = teacherSubject.SubjectCode
                 });
             }
 

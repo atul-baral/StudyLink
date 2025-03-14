@@ -10,12 +10,11 @@ namespace StudyLink.Application.Services.Interface
 {
     public interface ITeacherService
     {
-        Task<IEnumerable<AddTeacherVM>> GetAllTeachersAsync();
-        Task<AddTeacherVM> GetTeacherByIdAsync(int id);
-        Task AddTeacherAsync(AddTeacherVM teacherSubject);
-        Task UpdateTeacherAsync(AddTeacherVM teacherSubject);
-        Task DeleteTeacherAsync(int id);
-        Task<Teacher> GetTeacherByUserIdForSubjectsAsync(string userId);
-        Task<int?> GetTeacherIdByUserIdAsync(string userId);
+        Task<IEnumerable<AddTeacherVM>> GetList();
+        Task<AddTeacherVM> GetById(int id);
+        Task Add(AddTeacherVM teacherSubject);
+        Task Update(AddTeacherVM teacherSubject);
+        Task Delete(int id);
+        Task<int> GetIdByUserId(string userId);
     }
 }

@@ -10,10 +10,11 @@ namespace StudyLink.Application.Services.Interface
     public interface ISubjectService
     {
 
-        Task<IEnumerable<Subject>> GetAllSubjectsAsync();
-        Task<Subject> GetSubjectByIdAsync(int id);
-        Task AddSubjectAsync(Subject subject);
-        Task UpdateSubjectAsync(Subject subject);
-        Task DeleteSubjectAsync(int id);
+        Task<IEnumerable<Subject>> GetList();
+        Task<Subject> GetById(int id);
+        Task Add(Subject subject);
+        Task Update(Subject subject);
+        Task Delete(int id);
+        Task<List<Subject>> GetListByUserId(string userId);
     }
 }

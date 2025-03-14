@@ -23,7 +23,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var questionTypes = await _questionTypeService.GetAllQuestionTypesAsync();
+                var questionTypes = await _questionTypeService.GetList();
                 return View(questionTypes);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionTypeService.AddQuestionTypeAsync(questionType);
+                    await _questionTypeService.Add(questionType);
                     TempData["Success"] = "QuestionType created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -62,7 +62,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var questionType = await _questionTypeService.GetQuestionTypeByIdAsync(id);
+                var questionType = await _questionTypeService.GetById(id);
                 if (questionType == null)
                 {
                     return NotFound();
@@ -84,7 +84,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionTypeService.UpdateQuestionTypeAsync(questionType);
+                    await _questionTypeService.Update(questionType);
                     TempData["Success"] = "QuestionType updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -103,7 +103,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _questionTypeService.DeleteQuestionTypeAsync(questionType.QuestionTypeId);
+                await _questionTypeService.Delete(questionType.QuestionTypeId);
                 TempData["Success"] = "QuestionType deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
@@ -120,7 +120,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _questionTypeService.UpdateOrderAsync(updatedQuestionTypes);
+                await _questionTypeService.UpdateOrder(updatedQuestionTypes);
                 //return RedirectToAction(nameof(Index));
                 return Json(new { success = true, message = "Sort order updated successfully!" });
             }
@@ -137,7 +137,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _questionTypeService.TogglePublishStatusAsync(questionType.QuestionTypeId, questionType.IsPublished);
+                await _questionTypeService.TogglePublishStatus(questionType.QuestionTypeId, questionType.IsPublished);
                 return Json(new { success = true, message = "Publish status updated successfully!" });
             }
             catch (Exception ex)

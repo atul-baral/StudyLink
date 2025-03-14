@@ -27,7 +27,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var students = await _studentService.GetAllStudentsAsync();
+                var students = await _studentService.GetList();
                 return View(students);
             }
             catch (Exception ex)
@@ -38,7 +38,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.SubjectList = new SelectList(await _subjectService.GetAllSubjectsAsync(), "SubjectId", "SubjectName");
+            ViewBag.SubjectList = new SelectList(await _subjectService.GetList(), "SubjectId", "SubjectName");
             return View();
         }
 
@@ -49,7 +49,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _studentService.AddStudentAsync(student);
+                    await _studentService.Add(student);
                     TempData["Success"] = "Student created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -67,8 +67,8 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                ViewBag.SubjectList = new SelectList(await _subjectService.GetAllSubjectsAsync(), "SubjectId", "SubjectName");
-                var student = await _studentService.GetStudentByIdAsync(id);
+                ViewBag.SubjectList = new SelectList(await _subjectService.GetList(), "SubjectId", "SubjectName");
+                var student = await _studentService.GetById(id);
                 if (student == null)
                 {
                     return NotFound();
@@ -93,7 +93,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _studentService.UpdateStudentAsync(student);
+                    await _studentService.Update(student);
                     TempData["Success"] = "Student updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -112,7 +112,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _studentService.DeleteStudentAsync(student.StudentId);
+                await _studentService.Delete(student.StudentId);
                 TempData["Success"] = "Student deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }

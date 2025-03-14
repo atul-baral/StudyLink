@@ -23,7 +23,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var subjects = await _subjectService.GetAllSubjectsAsync();
+                var subjects = await _subjectService.GetList();
                 return View(subjects);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _subjectService.AddSubjectAsync(subject);
+                    await _subjectService.Add(subject);
                     TempData["Success"] = "Subject created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -62,7 +62,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                var subject = await _subjectService.GetSubjectByIdAsync(id);
+                var subject = await _subjectService.GetById(id);
                 if (subject == null)
                 {
                     return NotFound();
@@ -84,7 +84,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _subjectService.UpdateSubjectAsync(subject);
+                    await _subjectService.Update(subject);
                     TempData["Success"] = "Subject updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -103,7 +103,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
-                await _subjectService.DeleteSubjectAsync(subject.SubjectId);
+                await _subjectService.Delete(subject.SubjectId);
                 TempData["Success"] = "Subject deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }

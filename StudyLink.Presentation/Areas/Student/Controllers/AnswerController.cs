@@ -26,7 +26,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
         {
             try
             {
-                var questions = await _questionService.GetAllQuestionsForAnswerAsync(id);
+                var questions = await _questionService.GetListForAnswer(id);
 
                 return View(questions);
             }
@@ -38,7 +38,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
 
         public async Task<IActionResult> ListQuestionTypesWithResult(int id=0)
         {
-            var questionTypeWithResult = await _answerService.GetAllQuestionTypeWithResult(id);
+            var questionTypeWithResult = await _answerService.GetQuestionTypeResultList(id);
             return View(questionTypeWithResult);
         }
 
@@ -47,7 +47,7 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
         {
             try
             {
-                await _answerService.AddAnswersAsync(addAnswersVm);
+                await _answerService.Add(addAnswersVm);
                 TempData["Success"] = "Answers Submitted successfully!";
                 return RedirectToAction("ListQuestionTypesWithResult");
             }

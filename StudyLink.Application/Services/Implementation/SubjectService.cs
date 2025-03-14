@@ -16,29 +16,29 @@ namespace StudyLink.Application.Services.Implementation
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Subject>> GetAllSubjectsAsync()
+        public async Task<IEnumerable<Subject>> GetList()
         {
             return await _unitOfWork.Subjects.GetAllAsync();
         }
 
-        public async Task<Subject> GetSubjectByIdAsync(int id)
+        public async Task<Subject> GetById(int id)
         {
             return await _unitOfWork.Subjects.GetAsync(u => u.SubjectId == id);
         }
 
-        public async Task AddSubjectAsync(Subject subject)
+        public async Task Add(Subject subject)
         {
             await _unitOfWork.Subjects.AddAsync(subject);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateSubjectAsync(Subject subject)
+        public async Task Update(Subject subject)
         {
             await _unitOfWork.Subjects.UpdateAsync(subject);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteSubjectAsync(int id)
+        public async Task Delete(int id)
         {
             var subject = await _unitOfWork.Subjects.GetAsync(u => u.SubjectId == id);
             if (subject != null)
@@ -51,5 +51,36 @@ namespace StudyLink.Application.Services.Implementation
                 throw new Exception($"Subject with Id {id} not found");
             }
         }
+
+        public async Task<List<Subject>> GetListByUserId(string userId)
+        {
+            var student = await _unitOfWork.Students.GetAsync(
+                s => s.UserId == userId,
+                includeProperties: "StudentSubjects.Subject"
+            );
+
+            if (student != null)
+            {
+                return student.StudentSubjects
+                    .Where(ss => !ss.IsDeleted)
+                    .Select(ss => ss.Subject)
+                    .ToList();
+            }
+
+            var teacher = await _unitOfWork.Teachers.GetAsync(
+                t => t.UserId == userId,
+                includeProperties: "TeacherSubjects.Subject"
+            );
+
+            if (teacher != null)
+            {
+                return teacher.TeacherSubjects
+                    .Where(ts => !ts.IsDeleted)
+                    .Select(ts => ts.Subject)
+                    .ToList();
+            }
+            return new List<Subject>();
+        }
+
     }
 }

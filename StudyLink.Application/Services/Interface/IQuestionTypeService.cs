@@ -10,13 +10,14 @@ namespace StudyLink.Application.Services.Interface
 {
     public interface IQuestionTypeService
     {
-        Task<IEnumerable<QuestionType>> GetAllQuestionTypesAsync();
-        Task<QuestionType> GetQuestionTypeByIdAsync(int id);
-        Task AddQuestionTypeAsync(QuestionType questionType);
-        Task UpdateQuestionTypeAsync(QuestionType questionType);
-        Task DeleteQuestionTypeAsync(int id);
-        Task UpdateOrderAsync(List<QuestionType> updatedQuestionTypes);
-        Task TogglePublishStatusAsync(int questionTypeId, bool isActive);
-        Task<IEnumerable<QuestionType>> GetPublishedQuestionTypesBySubjectId(int subjectId);
+        Task<IEnumerable<QuestionType>> GetList();
+        Task<QuestionType> GetById(int id);
+        Task Add(QuestionType questionType);
+        Task Update(QuestionType questionType);
+        Task Delete(int id);
+        Task UpdateOrder(List<QuestionType> updatedQuestionTypes);
+        Task TogglePublishStatus(int questionTypeId, bool isActive);
+        Task<IEnumerable<QuestionType>> GetPublishedListBySubjectId(int subjectId);
     }
+
 }

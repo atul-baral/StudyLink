@@ -10,14 +10,14 @@ namespace StudyLink.Application.Services.Interface
 {
     public interface IAnswerService
     {
-        Task<IEnumerable<Answer>> GetAllAnswersAsync();
-        Task<Answer> GetAnswerByIdAsync(int id);
-        Task AddAnswersAsync(IEnumerable<AddAnswerVM> addAnswersVM);
-        Task UpdateAnswerAsync(Answer answer);
-        Task DeleteAnswerAsync(int id);
-        Task<IEnumerable<QuestionTypeResultVM>> GetAllQuestionTypeWithResult(int id);
-        Task<StudentQuestionTypeResultVM> GetAllStudentsQuestionTypeResults(int id);
+        Task<IEnumerable<Answer>> GetList();
+        Task<Answer> GetById(int id);
+        Task Add(List<AddAnswerVM> addAnswersVM);
+        Task Update(Answer answer);
+        Task Delete(int id);
         Task<int> GetCorrectAnswerCount(int subjectId, int questionTypeId);
-        Task<bool> HasStudentAnswered(int subjectId, int questionTypeId, int studentId);
+        Task<bool> HasAnswered(int subjectId, int questionTypeId, int studentId);
+        Task<List<QuestionTypeResultVM>> GetQuestionTypeResultList(int subjectId);
+        Task<StudentQuestionTypeResultVM> GetStudentResultByQuestionTypeId(int questionTypeId);
     }
 }
