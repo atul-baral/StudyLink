@@ -26,11 +26,11 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             _answerService = answerService;
         }
 
-        public async Task<IActionResult> Index(int id)
+        public async Task<IActionResult> Index(int questionTypeId)
         {
             try
             {
-                var questions = await _questionService.GetList(id);
+                var questions = await _questionService.GetList(questionTypeId);
                 return View(questions);
             }
             catch (Exception ex)
@@ -39,9 +39,9 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> QuestionTypes(int id)
+        public async Task<IActionResult> QuestionTypes(int subjectId)
         {
-            HttpContext.Session.SetString("SubjectId", id.ToString());
+            HttpContext.Session.SetString("SubjectId", subjectId.ToString());
 
             var questionTypes = await _questionTypeService.GetList();
             var filteredAndOrderedQuestionTypes = questionTypes

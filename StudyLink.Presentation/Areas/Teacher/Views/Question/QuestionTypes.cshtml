@@ -48,13 +48,13 @@
                         <div class="btn-container">
                             @if (!type.IsPublished)
                             {
-                                <a asp-action="Index" asp-controller="Question" asp-area="Teacher" asp-route-id="@type.QuestionTypeId" class="btn btn-primary btn-sm">
+                                <a asp-action="Index" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId" class="btn btn-primary btn-sm">
                                     Add Question
                                 </a>
                             }
                             else
                             {
-                                <a asp-action="GetStudentResults" asp-controller="Question" asp-area="Teacher" asp-route-id="@type.QuestionTypeId" class="btn btn-success btn-sm">
+                                <a asp-action="GetStudentResults" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId" class="btn btn-success btn-sm">
                                     Show Answers
                                 </a>
                             }

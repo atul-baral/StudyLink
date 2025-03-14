@@ -33,7 +33,7 @@ namespace StudyLink.Application.Services.Implementation
         public async Task Add(AddQuestionVM question)
         {
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            int teacherId = (int)await _teacherService.GetIdByUserId(user.Id);
+            int teacherId = await _teacherService.GetIdByUserId(user.Id);
 
             string subjectId = _httpContextAccessor.HttpContext.Session.GetString("SubjectId");
             string questionTypeId = _httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId");
@@ -42,8 +42,14 @@ namespace StudyLink.Application.Services.Implementation
             newQuestion.TeacherId = teacherId;
             newQuestion.SubjectId = int.Parse(subjectId);
             newQuestion.QuestionTypeId = int.Parse(questionTypeId);
-
-            await _unitOfWork.Questions.AddAsync(newQuestion);
+            try
+            {
+                await _unitOfWork.Questions.AddAsync(newQuestion);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
             await _unitOfWork.CompleteAsync();
         }
 
@@ -57,10 +63,24 @@ namespace StudyLink.Application.Services.Implementation
             }
         }
 
-        public async Task<IEnumerable<Question>> GetList(int subjectId)
+        public async Task<IEnumerable<Question>> GetList(int questionTypeId)
         {
+            if (questionTypeId > 0)
+            {
+                _httpContextAccessor.HttpContext.Session
+                    .SetString("QuestionTypeId", questionTypeId.ToString());
+            }
+
+            int subjectId = int.Parse(
+                _httpContextAccessor.HttpContext.Session.GetString("SubjectId")
+            );
+
+            questionTypeId = int.Parse(
+                _httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId")
+            );
+
             return await _unitOfWork.Questions.GetAllAsync(
-                q => q.SubjectId == subjectId,
+                q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId,
                 includeProperties: "Choices"
             );
         }
@@ -76,7 +96,9 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<Question> GetById(int id)
         {
-            return await _unitOfWork.Questions.GetAsync( u => u.QuestionId == id,  includeProperties: "Choices");
+            return await _unitOfWork.Questions.GetAsync(
+                u => u.QuestionId == id,  includeProperties: "Choices"
+            );
         }
 
         public async Task Update(Question question)
