@@ -4,6 +4,13 @@
     ViewData["Title"] = "Questions";
 }
 
+@if (TempData["MarksDifferenceMessage"] != null)
+{
+    <div class="alert alert-info">
+        <strong>Note:</strong> @TempData["MarksDifferenceMessage"]
+    </div>
+}
+
 <h2>Question List</h2>
 
 <div id="questionDataGrid" class="table-responsive table-bordered table-striped table-hover"></div>

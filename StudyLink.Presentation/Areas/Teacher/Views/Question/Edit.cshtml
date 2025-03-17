@@ -30,6 +30,7 @@
             showColonAfterLabel: false,
             formData: {
                 questionText: "@Html.Raw(Model.QuestionText)",
+                marks: "@Html.Raw(Model.Marks)",
                 correctAnswer: choices.find(c => c.isCorrect)?.id,
                 choices: choices
             },
@@ -37,9 +38,10 @@
                 {
                     itemType: "group",
                     caption: "Question Information",
-                    colCount: 1,
+                    colCount: 2,
                     items: [
-                        { dataField: "questionText", editorType: "dxTextBox", isRequired: true }
+                        { dataField: "questionText",editorType: "dxTextArea", isRequired: true, height: 150},
+                        { dataField: "marks", editorType: "dxNumberBox", isRequired: true }
                     ]
                 },
                 {

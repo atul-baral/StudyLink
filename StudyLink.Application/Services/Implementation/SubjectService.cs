@@ -28,6 +28,14 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task Add(Subject subject)
         {
+            var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync();
+
+            subject.SubjectQuestionTypes = questionTypes.Select(questionType => new SubjectQuestionType
+            {
+                SubjectId = subject.SubjectId,
+                QuestionTypeId = questionType.QuestionTypeId
+            }).ToList();
+
             await _unitOfWork.Subjects.AddAsync(subject);
             await _unitOfWork.CompleteAsync();
         }

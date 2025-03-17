@@ -131,14 +131,20 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> TogglePublishStatus([FromBody] QuestionType questionType)
+        public async Task<IActionResult> TogglePublishStatus([FromBody] SubjectQuestionType subjectQuestionType)
         {
             try
             {
-                await _questionTypeService.TogglePublishStatus(questionType.QuestionTypeId, questionType.IsPublished);
-                return Json(new { success = true, message = "Publish status updated successfully!" });
+                int result = await _questionTypeService.TogglePublishStatus(subjectQuestionType.QuestionTypeId, subjectQuestionType.SubjectId, subjectQuestionType.IsPublished);
+                if (result == 1)
+                {
+                    return Json(new { success = true, message = "Publish status updated successfully!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Cannot publish: Marks do not match." });
+                }
             }
             catch (Exception ex)
             {
@@ -147,5 +153,10 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
+        public async Task<IActionResult> GetQuestionTypeDetails(int questionTypeId)
+        {
+           var subjects =  await _questionTypeService.GetQuestionTypeDetails(questionTypeId);
+            return Json(new { success = true, data = subjects });
+        }
     }
 }

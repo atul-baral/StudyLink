@@ -20,8 +20,34 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<IEnumerable<QuestionType>> GetList()
         {
-            var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync();
+            var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync(includeProperties: "SubjectQuestionTypes");
             return questionTypes.OrderByDescending(q => q.SortOrder);
+        }
+
+/*        public async Task<IEnumerable<QuestionType>> GetListBySubjectId(int subjectId)
+        {
+            var questionTypes = await _unitOfWork.QuestionTypes
+                .GetAllAsync(includeProperties: "SubjectQuestionTypes");
+
+            var filteredQuestionTypes = questionTypes
+                .Where(qt => qt.SubjectQuestionTypes
+                    .Any(sqt => sqt.SubjectId == subjectId))
+                .OrderByDescending(q => q.SortOrder);
+            return filteredQuestionTypes;
+        }*/
+        
+        public async Task<IEnumerable<QuestionType>> GetListBySubjectId(int subjectId)
+        {
+            var subjectQuestionTypes = await _unitOfWork.SubjectQuestionTypes
+                .GetAllAsync(sqt => sqt.SubjectId == subjectId && !sqt.IsDeleted, includeProperties: "QuestionType");
+
+            var questionTypes = subjectQuestionTypes
+                .Select(sqt => sqt.QuestionType)
+                .Distinct()
+                .Where(qt => !qt.IsDeleted)
+                .OrderByDescending(qt => qt.SortOrder)
+                .ToList();
+            return questionTypes;
         }
 
         public async Task<QuestionType> GetById(int id)
@@ -34,6 +60,14 @@ namespace StudyLink.Application.Services.Implementation
             var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync();
             var maxSortOrder = questionTypes.OrderByDescending(q => q.SortOrder).FirstOrDefault();
             questionType.SortOrder = maxSortOrder != null ? maxSortOrder.SortOrder + 1 : 1;
+
+            var subjects = await _unitOfWork.Subjects.GetAllAsync();
+
+            questionType.SubjectQuestionTypes = subjects.Select(subject => new SubjectQuestionType
+            {
+                SubjectId = subject.SubjectId, 
+                QuestionTypeId = questionType.QuestionTypeId 
+            }).ToList();
 
             await _unitOfWork.QuestionTypes.AddAsync(questionType);
             await _unitOfWork.CompleteAsync();
@@ -69,7 +103,7 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task TogglePublishStatus(int questionTypeId, bool isActive)
+/*        public async Task TogglePublishStatus(int questionTypeId, bool isActive)
         {
             var questionType = await _unitOfWork.QuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId);
             if (questionType != null)
@@ -78,21 +112,50 @@ namespace StudyLink.Application.Services.Implementation
                 await _unitOfWork.QuestionTypes.UpdateAsync(questionType);
                 await _unitOfWork.CompleteAsync();
             }
-        }
+        }*/
 
         public async Task<IEnumerable<QuestionType>> GetPublishedListBySubjectId(int subjectId)
         {
-            var questions = await _unitOfWork.Questions
-                .GetAllAsync(q => q.SubjectId == subjectId && !q.IsDeleted, includeProperties: "QuestionType");
+            var subjectQuestionTypes = await _unitOfWork.SubjectQuestionTypes
+                .GetAllAsync(sqt => sqt.SubjectId == subjectId && sqt.IsPublished && !sqt.IsDeleted, includeProperties: "QuestionType");
 
-            var questionTypes = questions
-                .Select(q => q.QuestionType)
+            var questionTypes = subjectQuestionTypes
+                .Select(sqt => sqt.QuestionType)
                 .Distinct()
-                .Where(qt => qt.IsPublished && !qt.IsDeleted)
+                .Where(qt => !qt.IsDeleted) 
                 .OrderByDescending(qt => qt.SortOrder)
                 .ToList();
-
             return questionTypes;
+        }
+
+        public async Task<int> GetQuestionMarksDifferenceFromFullMarks(int questionTypeId, int subjectId)
+        {
+            var questionType = await _unitOfWork.QuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId);
+            var totalQuestionMarks = (await _unitOfWork.Questions.GetAllAsync(q => q.QuestionTypeId == questionTypeId && q.SubjectId == subjectId && !q.IsDeleted)).Sum(q => q.Marks);
+            return questionType.FullMarks - totalQuestionMarks; 
+        }
+
+        public async Task<int> TogglePublishStatus(int questionTypeId,int subjectId, bool isPublished)
+        {
+            if (await GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId) != 0)
+            {
+                return 0;
+            }
+
+            var questionType = await _unitOfWork.SubjectQuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId && q.SubjectId == subjectId);
+            if (questionType != null)
+            {
+                questionType.IsPublished = isPublished;
+                await _unitOfWork.SubjectQuestionTypes.UpdateAsync(questionType);
+                await _unitOfWork.CompleteAsync();
+            }
+            return 1;
+        }
+
+        public async Task<IEnumerable<SubjectQuestionType>> GetQuestionTypeDetails(int questionTypeId)
+        {
+           var subjects = await _unitOfWork.SubjectQuestionTypes.GetAllAsync(x=> x.QuestionTypeId == questionTypeId, includeProperties: "Subject");
+            return subjects;
         }
     }
 }

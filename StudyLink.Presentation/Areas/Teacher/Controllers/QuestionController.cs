@@ -30,6 +30,18 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
+                int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+                //HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                var marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
+
+                if (marksDifference == 0)
+                {
+                    TempData["MarksDifferenceMessage"] = "No more questions can be added as the full marks have already been covered.";
+                }
+                else
+                {
+                    TempData["MarksDifferenceMessage"] = $"There are still {marksDifference} marks left to be completed for this question type.";
+                }
                 var questions = await _questionService.GetList(questionTypeId);
                 return View(questions);
             }
@@ -43,12 +55,8 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             HttpContext.Session.SetString("SubjectId", subjectId.ToString());
 
-            var questionTypes = await _questionTypeService.GetList();
-            var filteredAndOrderedQuestionTypes = questionTypes
-                .OrderByDescending(x => x.SortOrder)
-                .ToList();
-
-            return View(filteredAndOrderedQuestionTypes);
+            var questionTypes = await _questionTypeService.GetListBySubjectId(subjectId);
+            return View(questionTypes);
         }
 
         public IActionResult Create()
@@ -63,7 +71,14 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionService.Add(question);
+                    int result = await _questionService.Add(question);
+
+                    if (result == -1)
+                    {
+                        TempData["Error"] = "Entered marks exceed the full marks.";
+                        return View(question);
+                    }
+
                     TempData["Success"] = "Question created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -72,20 +87,17 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                TempData["Error"] = $"An error occurred.";
+                TempData["Error"] = "An error occurred while creating the question.";
                 return View(question);
             }
         }
+
 
         public async Task<IActionResult> Edit(int id)
         {
             try
             {
                 var question = await _questionService.GetById(id);
-                if (question == null)
-                {
-                    return NotFound();
-                }
                 return View(question);
             }
             catch (Exception ex)
@@ -103,9 +115,15 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await _questionService.Update(question);
+                   var result = await _questionService.Update(question);
+                    if (result == -1)
+                    {
+                        TempData["Error"] = "Entered marks exceed the full marks.";
+                        return View(question);
+                    }
                     TempData["Success"] = "Question updated successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { questionTypeId = question.QuestionTypeId});
+
                 }
                 return View(question);
             }

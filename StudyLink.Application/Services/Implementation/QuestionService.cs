@@ -15,42 +15,45 @@ namespace StudyLink.Application.Services.Implementation
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITeacherService _teacherService;
+        private readonly IQuestionTypeService _questionTypeService;
 
         public QuestionService(
             IUnitOfWork unitOfWork,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            ITeacherService teacherService)
+            ITeacherService teacherService,
+            IQuestionTypeService questionTypeService)
         {
             _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _userManager = userManager;
             _teacherService = teacherService;
+            _questionTypeService = questionTypeService;
         }
 
-        public async Task Add(AddQuestionVM question)
+        public async Task<int> Add(AddQuestionVM question)
         {
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             int teacherId = await _teacherService.GetIdByUserId(user.Id);
 
-            string subjectId = _httpContextAccessor.HttpContext.Session.GetString("SubjectId");
-            string questionTypeId = _httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId");
-
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+            int questionTypeId =int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
+           
+            int marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
+            if (marksDifference - question.Marks  < 0)
+            {
+                return -1;
+            }
             var newQuestion = _mapper.Map<Question>(question);
             newQuestion.TeacherId = teacherId;
-            newQuestion.SubjectId = int.Parse(subjectId);
-            newQuestion.QuestionTypeId = int.Parse(questionTypeId);
-            try
-            {
-                await _unitOfWork.Questions.AddAsync(newQuestion);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            newQuestion.SubjectId = subjectId;
+            newQuestion.QuestionTypeId = questionTypeId;
+
+            await _unitOfWork.Questions.AddAsync(newQuestion);
             await _unitOfWork.CompleteAsync();
+            return 1;
         }
 
         public async Task Delete(int id)
@@ -67,17 +70,10 @@ namespace StudyLink.Application.Services.Implementation
         {
             if (questionTypeId > 0)
             {
-                _httpContextAccessor.HttpContext.Session
-                    .SetString("QuestionTypeId", questionTypeId.ToString());
+                _httpContextAccessor.HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
             }
-
-            int subjectId = int.Parse(
-                _httpContextAccessor.HttpContext.Session.GetString("SubjectId")
-            );
-
-            questionTypeId = int.Parse(
-                _httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId")
-            );
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+            questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
 
             return await _unitOfWork.Questions.GetAllAsync(
                 q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId,
@@ -101,10 +97,19 @@ namespace StudyLink.Application.Services.Implementation
             );
         }
 
-        public async Task Update(Question question)
+        public async Task<int> Update(Question question)
         {
+            int marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(question.QuestionTypeId, question.SubjectId);
+            int existingMarks = (await _unitOfWork.Questions.GetAsync(x=> x.QuestionId == question.QuestionId)).Marks;
+
+            if ((marksDifference + existingMarks - question.Marks) < 0)
+            {
+                return -1;
+            }
+
             await _unitOfWork.Questions.UpdateAsync(question);
             await _unitOfWork.CompleteAsync();
+            return 1;
         }
 
         public async Task<IEnumerable<int>> GetQuestionTypeList(int subjectId)

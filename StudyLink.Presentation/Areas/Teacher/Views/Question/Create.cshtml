@@ -32,9 +32,10 @@
                 {
                     itemType: "group",
                     caption: "Question Information",
-                    colCount: 1,
+                    colCount: 2,
                     items: [
-                        { dataField: "QuestionText", editorType: "dxTextBox", isRequired: true }
+                        { dataField: "questionText",editorType: "dxTextArea", isRequired: true, height: 150},
+                        { dataField: "marks", editorType: "dxNumberBox", editorOptions: {  min: 1,  max: 5,  value: 1 }, isRequired: true }
                     ]
                 },
                 {

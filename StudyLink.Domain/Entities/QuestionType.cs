@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace StudyLink.Domain.Entities
 {
@@ -15,5 +17,9 @@ namespace StudyLink.Domain.Entities
         public int PassMarks { get; set; }
         public bool IsPublished { get; set; }
         public bool IsDeleted { get; set; } = false;
+
+        [ValidateNever]
+        [JsonIgnore]
+        public ICollection<SubjectQuestionType> SubjectQuestionTypes { get; set; }
     }
 }

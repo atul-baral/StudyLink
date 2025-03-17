@@ -14,6 +14,7 @@ namespace StudyLink.Application.Interfaces
         IQuestionTypeRepository QuestionTypes { get; }
         IQuestionRepository Questions { get; }
         IAnswerRepository Answers { get; }
+        ISubjectQuestionTypeRepository SubjectQuestionTypes { get; }
         Task<int> CompleteAsync(); 
     }
 }

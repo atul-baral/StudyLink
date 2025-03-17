@@ -24,6 +24,8 @@ namespace StudyLink.Application.ViewModels
 
         public string QuestionText { get; set; }
 
+        public int Marks { get; set; }
+
         [JsonIgnore]
         public ICollection<Choice> Choices { get; set; }
     }

@@ -21,6 +21,17 @@
     </div>
 </div>
 
+<div id="detailsPopup" class="dx-popup" style="display:none;">
+    <div class="dx-popup-content">
+        <h4 id="popupTitle"></h4>
+        <div id="subjectList"></div> 
+        @* <div class="dx-popup-buttons">
+            <button type="button" id="closePopupBtn" class="dx-button">Close</button>
+        </div> *@
+    </div>
+</div>
+
+
 @section Scripts {
     <script>
         var questionTypes = @Html.Raw(Json.Serialize(Model));
@@ -33,6 +44,19 @@
             width: 315,
             height: 210
         }).dxPopup("instance");
+
+        var detailsPopup = $("#detailsPopup").dxPopup({
+            title: "Question Type Details",
+            visible: false,
+            dragEnabled: true,
+            closeOnOutsideClick: true,
+            width: 800,
+            height: "auto"
+        }).dxPopup("instance");
+
+        // $(document).on("click", "#closePopupBtn", function () {
+        //     detailsPopup.hide();
+        // });
 
         $("#questionTypeDataGrid").dxDataGrid({
                 dataSource: questionTypes,
@@ -84,38 +108,109 @@
                     caption: "Pass Marks",
                      alignment: "left"
                 },
-                {
-                    dataField: "isPublished",
-                    caption: "Publish",
-                    cellTemplate: function (container, options) {
-                        $("<div>")
-                            .dxSwitch({
-                                value: options.value,
-                                onValueChanged: function (e) {
-                                    $.ajax({
-                                        url: '@Url.Action("TogglePublishStatus", "QuestionTypeManage", new { area = "Admin" })',
-                                        type: 'POST',
-                                        contentType: 'application/json',
-                                        data: JSON.stringify({
-                                            questionTypeId: options.row.data.questionTypeId,
-                                            isPublished: e.value
-                                        }),
-                                        success: function (data) {
-                                            if (data.success) {
-                                                toastr.success(data.message); 
-                                            } else {
-                                                toastr.error(data.message);
-                                            }
-                                        }
-                                    });
-                                }
-                            }).appendTo(container);
-                    }
-                },
+                // {
+                //     dataField: "isPublished",
+                //     caption: "Publish",
+                //     cellTemplate: function (container, options) {
+                //         var switchControl = $("<div>")
+                //             .dxSwitch({
+                //                 value: options.value,
+                //                 onValueChanged: function (e) {
+                //                     $.ajax({
+                //                         url: '@Url.Action("TogglePublishStatus", "QuestionTypeManage", new { area = "Admin" })',
+                //                         type: 'POST',
+                //                         contentType: 'application/json',
+                //                         data: JSON.stringify({
+                //                             questionTypeId: options.row.data.questionTypeId,
+                //                             isPublished: e.value
+                //                         }),
+                //                         success: function (data) {
+                //                             if (data.success) {
+                //                                 toastr.success(data.message); 
+                //                             } else {
+                //                                 switchControl.dxSwitch("instance").option("value", options.value);
+                //                                 toastr.error(data.message);
+                //                             }
+                //                         }
+                //                     });
+                //                 }
+                //             }).appendTo(container);
+                //     }
+                // },
                 {
                     caption: "Actions",
                     type: "buttons",
                     buttons: [
+                        {
+                            icon: "bi bi-toggles",
+                                onClick: function (e) {
+                                var questionTypeId = e.row.data.questionTypeId;
+
+                                $.ajax({
+                                    url: '@Url.Action("GetQuestionTypeDetails", "QuestionTypeManage", new { area = "Admin" })',
+                                    type: 'GET',
+                                    data: { questionTypeId: questionTypeId },
+                                    success: function (response) {
+                                        if (response.success) {
+                                            detailsPopup.show();
+                                            $("#subjectList").dxDataGrid({
+                                                dataSource: response.data,
+                                                columns: [
+                                                    {
+                                                        dataField: "subject.subjectName",  
+                                                        caption: "Subject Name",
+                                                        alignment: "left"
+                                                    },
+                                                    {
+                                                        dataField: "isPublished", 
+                                                        caption: "Published",
+                                                        alignment: "center",
+                                                        cellTemplate: function (container, options) {
+                                                            var switchControl = $("<div>")
+                                                            .dxSwitch({
+                                                                value: options.value,
+                                                                onValueChanged: function (e) {
+                                                                    $.ajax({
+                                                                        url: '@Url.Action("TogglePublishStatus", "QuestionTypeManage", new { area = "Admin" })',
+                                                                        type: 'POST',
+                                                                        contentType: 'application/json',
+                                                                        data: JSON.stringify({
+                                                                            questionTypeId: options.row.data.questionTypeId,
+                                                                            subjectId: options.row.data.subjectId,
+                                                                            isPublished: e.value
+                                                                        }),
+                                                                        success: function (data) {
+                                                                            if (data.success) {
+                                                                                toastr.success(data.message);
+                                                                            } else {
+                                                                                switchControl.dxSwitch("instance").option("value", options.value);
+                                                                                toastr.error(data.message);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }).appendTo(container);
+                                                        }
+                                                    }
+                                                ],
+                                                paging: { enabled: false },
+                                                sorting: { mode: "multiple" },
+                                                height: "auto"
+                                            });
+
+                           
+                                        } else {
+                                            toastr.error("Failed to load details.");
+                                        }
+                                    },
+                                    error: function () {
+                                        toastr.error("Error fetching data.");
+                                    }
+                                });
+                            },
+                            cssClass: "fs-6 text-success mx-1"
+                        },
+
                         {
                             icon: "bi bi-pencil",
                             onClick: function (e) {
