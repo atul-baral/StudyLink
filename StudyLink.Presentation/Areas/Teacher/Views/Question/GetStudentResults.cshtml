@@ -2,22 +2,96 @@
 
 <h3>@Model.SubjectName - @Model.QuestionTypeName</h3>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Student Name</th>
-            <th>Marks Obtained</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var student in Model.StudentResults)
-        {
-            <tr>
-                <td>@student.StudentName</td>
-                <td>@student.MarksObtained</td>
-                <td>@(student.IsPass ? "Pass" : "Failed")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div id="studentDataGrid" class="table-responsive table-bordered table-striped table-hover"></div>
+
+@section Scripts {
+    <script>
+        var studentResults = @Html.Raw(Json.Serialize(Model.StudentResults));
+        var selectedStudentId = null;
+
+        var viewPopup = $("#viewPopup").dxPopup({
+            title: "View Student Details",
+            visible: false,
+            dragEnabled: true,
+            closeOnOutsideClick: true,
+            width: 400,
+            height: 250,
+            onHiding: function () {
+                selectedStudentId = null;
+            }
+        }).dxPopup("instance");
+
+        $("#studentDataGrid").dxDataGrid({
+            dataSource: studentResults,
+            columns: [
+                {
+                    dataField: "studentName",
+                    caption: "Student Name",
+                    alignment: "left"
+                },
+                {
+                    dataField: "marksObtained",
+                    caption: "Marks Obtained",
+                    alignment: "left"
+                },
+                {
+                    dataField: "IsPass",
+                    caption: "Status",
+                    cellTemplate: function (container, options) {
+                        $("<span>")
+                            .text(options.value ? "Pass" : "Failed")
+                            .appendTo(container);
+                    }
+                },
+                {
+                    caption: "Actions",
+                    type: "buttons",
+                    buttons: [
+                        {
+                            icon: "bi bi-eye", 
+                            onClick: function (e) {
+                                var studentId = e.row.data.StudentId;
+                                window.location.href = '@Url.Action("ViewDetails", "StudentManage", new { area = "Admin" })/' + studentId;
+                            },
+                            cssClass: "fs-6 text-info mx-1"
+                        }
+                    ]
+                }
+            ],
+            paging: {
+                pageSize: 5
+            },
+            pager: {
+                visible: true,
+                showPageSizeSelector: true,
+                allowedPageSizes: [5, 10, 15],
+                showNavigationButtons: true,
+                displayMode: "compact"
+            },
+            toolbar: {
+                items: [
+                    {
+                        name: "searchPanel",
+                        location: "after"
+                    }
+                ]
+            },
+            searchPanel: {
+                visible: true,
+                width: 200,
+                placeholder: "Search..."
+            },
+            filterRow: {
+                visible: false
+            },
+            onContentReady: function () {
+                $(".dx-gridbase-a11y-status-container").hide();
+            }
+        });
+
+        $(document).on("click", "#cancelDeleteBtn", function () {
+            viewPopup.hide();
+        });
+
+    </script>
+}

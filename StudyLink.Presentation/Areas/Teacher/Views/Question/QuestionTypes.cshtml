@@ -25,11 +25,23 @@
 
     .card-title {
         flex-grow: 1;
+        font-weight: bold;
     }
 
     .btn-container {
         margin-top: auto;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
     }
+
+    .btn-questions {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
 </style>
 
 <div class="container my-5">
@@ -48,14 +60,21 @@
                         <div class="btn-container">
                             @if (!type.SubjectQuestionTypes.Any(s => s.IsPublished))
                             {
-                                <a asp-action="Index" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId" class="btn btn-primary btn-sm">
+                                <a asp-action="Index" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId"
+                                   class="btn btn-primary btn-sm">
                                     Add Question
                                 </a>
                             }
                             else
                             {
-                                <a asp-action="GetStudentResults" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId" class="btn btn-success btn-sm">
-                                    Show Answers
+                                <a asp-action="GetQuestionListForView" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId"
+                                   class="btn btn-primary btn-sm">
+                                    Questions
+                                </a>
+
+                                <a asp-action="GetStudentResults" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId"
+                                   class="btn btn-success btn-sm">
+                                    Answers
                                 </a>
                             }
                         </div>

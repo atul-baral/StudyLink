@@ -175,7 +175,7 @@
             let totalMarks = 0;
             $(".dx-form").each(function () {
                 let formInstance = $(this).dxForm("instance");
-                totalMarks += formInstance.option("formData").Marks || 0;
+                totalMarks += formInstance.option("formData").marks || 0;
             });
             return totalMarks;
         }

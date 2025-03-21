@@ -1,0 +1,69 @@
+﻿@model IEnumerable<StudyLink.Domain.Entities.Question>
+
+@{
+    ViewData["Title"] = "Question List";
+}
+
+<h2 class="mb-4">Question List</h2>
+<a asp-action="QuestionTypes" asp-route-subjectId="@Model.FirstOrDefault()?.SubjectId" class="btn btn-secondary mt-3">Back</a>
+
+@if (Model != null && Model.Any())
+{
+    <div class="list-group">
+        @foreach (var question in Model.Select((q, index) => new { Question = q, Index = index + 1 }))
+        {
+            <div class="mb-4 p-3 border rounded">
+                <h5>Question @question.Index: @question.Question.QuestionText</h5>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <ul class="list-group">
+                            @foreach (var choice in question.Question.Choices.Take(2).ToList())
+                            {
+                                <li class="list-group-item @(choice.IsCorrect ? "list-group-item-success font-weight-bold" : "")">
+                                    <strong>@GetChoiceLabel(question.Question.Choices.ToList().IndexOf(choice))</strong>: @choice.ChoiceText
+                                    @if (choice.IsCorrect)
+                                    {
+                                        <span class="badge bg-success ms-2">Correct</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="col-md-6">
+                        <ul class="list-group">
+                            @foreach (var choice in question.Question.Choices.Skip(2).ToList())
+                            {
+                                <li class="list-group-item @(choice.IsCorrect ? "list-group-item-success font-weight-bold" : "")">
+                                    <strong>@GetChoiceLabel(question.Question.Choices.ToList().IndexOf(choice))</strong>: @choice.ChoiceText
+                                    @if (choice.IsCorrect)
+                                    {
+                                        <span class="badge bg-success ms-2">Correct</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No questions found.</p>
+}
+
+@functions {
+    public string GetChoiceLabel(int index)
+    {
+        return index switch
+        {
+            0 => "A",
+            1 => "B",
+            2 => "C",
+            3 => "D",
+            _ => ""
+        };
+    }
+}

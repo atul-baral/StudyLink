@@ -33,6 +33,10 @@
         var questions = @Html.Raw(Json.Serialize(Model));
         var selectedQuestionId = null;
 
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+        }
+
         var deletePopup = $("#deletePopup").dxPopup({
             title: "Delete Confirmation",
             visible: false,
@@ -47,10 +51,32 @@
 
         $("#questionDataGrid").dxDataGrid({
             dataSource: questions,
+            rowAlternationEnabled: true,
+            showBorders: true,
             columns: [
                 {
                     dataField: "questionText",
-                    caption: "Question Name"
+                    caption: "Question",
+                    width: "60%"
+                },
+                {
+                    caption: "Choices",
+                    width: "40%",
+                    cellTemplate: function(container, options) {
+                        var choices = options.data.choices || [];
+
+                        var choicesHtml = "<div class='row'>";
+                        choices.forEach((choice, index) => {
+                            var truncatedChoice = truncateText(choice.choiceText, 14);
+                            var isCorrect = choice.isCorrect ? "<i class='bi bi-check-circle-fill text-success'></i>" : "";
+                            choicesHtml += `<div class="col-md-3 border p-2 text-truncate" title="${choice.choiceText}">
+                                ${truncatedChoice} ${isCorrect}
+                            </div>`;
+                        });
+                        choicesHtml += "</div>";
+
+                        $(container).append(choicesHtml);
+                    }
                 },
                 {
                     caption: "Actions",
@@ -67,17 +93,15 @@
                         {
                             icon: "bi bi-trash",
                             onClick: function (e) {
-                                  deletePopup.show();
-                                  $("#QuestionId").val(e.row.data.questionId);
+                                deletePopup.show();
+                                $("#QuestionId").val(e.row.data.questionId);
                             },
                             cssClass: "fs-6 text-danger mx-1"
                         }
                     ]
                 }
             ],
-            paging: {
-                pageSize: 5
-            },
+            paging: { pageSize: 5 },
             pager: {
                 visible: true,
                 showPageSizeSelector: true,
@@ -113,9 +137,6 @@
                 width: 200,
                 placeholder: "Search..."
             },
-            filterRow: {
-                visible: false
-            },
             onContentReady: function () {
                 $(".dx-gridbase-a11y-status-container").hide();
             }
@@ -124,6 +145,6 @@
         $(document).on("click", "#cancelDeleteBtn", function () {
             deletePopup.hide();
         });
-
     </script>
 }
+

@@ -175,5 +175,24 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                 return this.Handle(ex.Message);
             }
         }
+
+        public async Task<IActionResult> GetQuestionListForView(int questionTypeId)
+        {
+            try
+            {
+                if (questionTypeId > 0)
+                {
+                    HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                }
+                int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+                questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
+                var questions = await _questionService.GetList(questionTypeId);
+                return View(questions);
+            }
+            catch (Exception ex)
+            {
+                return this.Handle(ex.Message);
+            }
+        }
     }
 }
