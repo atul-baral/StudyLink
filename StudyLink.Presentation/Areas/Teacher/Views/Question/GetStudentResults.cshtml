@@ -6,8 +6,8 @@
     <thead>
         <tr>
             <th>Student Name</th>
-            <th>Total Questions</th>
-            <th>Total Correct Answers</th>
+            <th>Marks Obtained</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -15,8 +15,8 @@
         {
             <tr>
                 <td>@student.StudentName</td>
-                <td>@student.TotalQuestions</td>
-                <td>@student.TotalCorrectAnswers</td>
+                <td>@student.MarksObtained</td>
+                <td>@(student.IsPass ? "Pass" : "Failed")</td>
             </tr>
         }
     </tbody>

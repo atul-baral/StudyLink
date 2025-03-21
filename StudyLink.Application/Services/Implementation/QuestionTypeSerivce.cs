@@ -21,7 +21,7 @@ namespace StudyLink.Application.Services.Implementation
         public async Task<IEnumerable<QuestionType>> GetList()
         {
             var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync(includeProperties: "SubjectQuestionTypes");
-            return questionTypes.OrderByDescending(q => q.SortOrder);
+            return questionTypes.OrderBy(q => q.SortOrder);
         }
 
 /*        public async Task<IEnumerable<QuestionType>> GetListBySubjectId(int subjectId)

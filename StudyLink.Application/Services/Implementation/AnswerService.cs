@@ -120,14 +120,24 @@ namespace StudyLink.Application.Services.Implementation
                 int totalQuestions = await _questionService.GetQuestionCount(subjectId, questionType.QuestionTypeId);
                 int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
                 bool hasAnswered = await HasAnswered(subjectId, questionType.QuestionTypeId, studentId);
+                int marksObtained = await GetObtainedMarks(subjectId, questionType.QuestionTypeId, studentId);
+                bool isPass = false;
+                if(marksObtained < questionType.PassMarks)
+                {
+                    isPass = false;
+                }
+                else
+                {
+                    isPass = true;
+                }
                 questionTypeResults.Add(new QuestionTypeResultVM
                 {
                     QuestionTypeId = questionType.QuestionTypeId,
                     QuestionTypeName = questionType.TypeName,
-                    TotalQuestions = totalQuestions,
-                    TotalCorrectAnswers = correctAnswerCount,
+                    MarksObtained = marksObtained,
+                    IsPass = isPass,
                     IsAnswered = hasAnswered
-                });
+                }); 
             }
             return questionTypeResults;
         }
@@ -148,12 +158,22 @@ namespace StudyLink.Application.Services.Implementation
                     var studentName = $"{student.User.FirstName} {student.User.LastName}";
                     int totalQuestionCount = await _questionService.GetQuestionCount(subjectId, questionType.QuestionTypeId);
                     int correctAnswerCount = await GetCorrectAnswerCount(subjectId, questionType.QuestionTypeId);
+                    int marksObtained = await GetObtainedMarks(subjectId, questionType.QuestionTypeId, studentId);
+                    bool isPass = false;
+                    if (marksObtained < questionType.PassMarks)
+                    {
+                        isPass = false;
+                    }
+                    else
+                    {
+                        isPass = true;
+                    }
                     studentResults.Add(new StudentResultVM
                     {
                         StudentId = studentId,
                         StudentName = studentName,
-                        TotalQuestions = totalQuestionCount,
-                        TotalCorrectAnswers = correctAnswerCount
+                        MarksObtained = marksObtained,
+                        IsPass = isPass
                     });
                 }
             }
@@ -165,5 +185,20 @@ namespace StudyLink.Application.Services.Implementation
                 StudentResults = studentResults
             };
         }
+
+        public async Task<int> GetObtainedMarks(int subjectId, int questionTypeId, int studentId)
+        {
+            var answers = await _unitOfWork.Answers.GetAllAsync(
+                a => a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId &&
+                     a.StudentId == studentId &&
+                     a.SelectedChoice.IsCorrect,
+                includeProperties: "Question"
+            );
+
+            return answers.Sum(a => a.Question.Marks);
+        }
+
+
     }
 }

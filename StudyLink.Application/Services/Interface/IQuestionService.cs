@@ -10,10 +10,10 @@ namespace StudyLink.Application.Services.Interface
     {
         Task<IEnumerable<Question>> GetList(int questionTypeId);
         Task<Question> GetById(int id);
-        Task<int> Add(AddQuestionVM question);
+        Task<int> Add(List<AddQuestionVM> addQuestionVm);
         Task<int> Update(Question question);
         Task Delete(int id);
-        Task<IEnumerable<AddAnswerVM>> GetListForAnswer(int subjectId);
+        Task<IEnumerable<AddAnswerVM>> GetListForAnswer(int questionTypeId);
         Task<IEnumerable<int>> GetQuestionTypeList(int subjectId);
         Task<int> GetQuestionCount(int subjectId, int questionTypeId);
     }

@@ -1,41 +1,118 @@
-﻿@model StudyLink.Domain.Entities.Question
+﻿@model List<StudyLink.Application.ViewModels.AddQuestionVM>
 
 @{
     ViewData["Title"] = "Add Question";
 }
 
-<h2>Add Question</h2>
+<h2 class="mb-3 text-center">Add Questions</h2>
 
-<form asp-area="Teacher" asp-action="Create" method="post" id="form-container">
-    <div id="form"></div>
-    <div id="choicesFields"></div>
-</form>
+<div class="container d-flex justify-content-center">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+        <form asp-area="Teacher" asp-action="Create" method="post" id="form-container" class="p-3 shadow-sm rounded bg-white">
+            <div id="questions-container"></div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <div id="add-question"></div>
+                <div id="submit-questions"></div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+        let questionCount = 0;
+        let marksDifference = isNaN(@ViewBag.MarksDifference) ? 0 : @ViewBag.MarksDifference;
+
+
+        function addQuestionForm(validateBeforeAdd = false) {
+            if (marksDifference <= 0) {
+                toastr.error("No remaining marks available to add another question.");
+                return;
+            }
+
+            if (validateBeforeAdd && !validateAllForms()) {
+                toastr.error("Please fill in all required fields before adding a new question.");
+                return;
+            }
+
+            questionCount++;
+            let questionFormId = `form_${questionCount}`;
+
         let choices = [
-            { id: "A", text: "" },
-            { id: "B", text: "" },
-            { id: "C", text: "" },
-            { id: "D", text: "" }
+            { id: "A", choiceText: "", isCorrect: false },
+            { id: "B", choiceText: "", isCorrect: false },
+            { id: "C", choiceText: "", isCorrect: false },
+            { id: "D", choiceText: "", isCorrect: false }
         ];
 
-        $("#form").dxForm({
-            labelLocation: "top",
-            showColonAfterLabel: false,
+        let $questionCard = $(`
+            <div id="${questionFormId}" class="card mt-3 shadow-sm border-0 rounded">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-2">Question ${questionCount}</h6>
+                        <div id="remove-question-${questionCount}"></div>
+                    </div>
+                    <div id="dx-form-${questionCount}"></div>
+                    <!-- Hidden fields for QuestionId and Marks -->
+                    <input type="hidden" name="[${questionCount - 1}].Marks" value="1" />
+                    <input type="hidden" name="[${questionCount - 1}].QuestionText" value="" />
+
+                    <!-- Hidden fields for Choices -->
+                    ${choices.map((choice, index) => `
+                        <input type="hidden" name="[${questionCount - 1}].Choices[${index}].ChoiceText" value="${choice.choiceText}" />
+                        <input type="hidden" name="[${questionCount - 1}].Choices[${index}].IsCorrect" value="${choice.isCorrect}" />
+                    `).join("")}
+                </div>
+            </div>
+        `);
+
+        $("#questions-container").append($questionCard);
+
+        let formInstance = $(`#dx-form-${questionCount}`).dxForm({
             formData: {
-                QuestionText: "",
-                CorrectAnswer: "",
-                Choices: choices // Directly initialize Choices here
+                questionText: "",
+                marks: 1,
+                choices: choices
             },
+            labelLocation: "top",
+            validationGroup: `group_${questionCount}`,
             items: [
                 {
                     itemType: "group",
-                    caption: "Question Information",
-                    colCount: 2,
+                    caption: "Question Details",
+                    colCount: 1,
                     items: [
-                        { dataField: "questionText",editorType: "dxTextArea", isRequired: true, height: 150},
-                        { dataField: "marks", editorType: "dxNumberBox", editorOptions: {  min: 1,  max: 5,  value: 1 }, isRequired: true }
+                        {
+                            dataField: "questionText",
+                            editorType: "dxTextArea",
+                            isRequired: true,
+                            validationRules: [{ type: "required", message: "Question is required" }],
+                            editorOptions: { height: 80, placeholder: "Enter the question..." }
+                        },
+                        {
+                            dataField: "marks",
+                            editorType: "dxNumberBox",
+                            isRequired: true,
+                            validationRules: [{ type: "required", message: "Marks are required" }],
+                            editorOptions: {
+                                min: 1,
+                                max: Math.min(5, marksDifference),
+                                value: 1,
+                                width: "100px",
+                                onValueChanged: function (e) {
+                                    $(`input[name="[${questionCount - 1}].Marks"]`).val(e.value);
+                                    let totalMarksUsed = calculateTotalMarks();
+                                    if (totalMarksUsed > marksDifference) {
+                                        toastr.error(`Marks exceed the available limit (${marksDifference}).`);
+                                        e.component.option("value", marksDifference - (totalMarksUsed - e.value));
+                                        return;
+                                    }
+                                    toggleAddButton();
+                                }
+                            },
+
+                        }
                     ]
                 },
                 {
@@ -43,56 +120,115 @@
                     caption: "Choices",
                     colCount: 2,
                     items: choices.map((choice, index) => ({
-                        dataField: `Choices[${index}].ChoiceText`, // Use indexed binding for choices
+                        dataField: `choices[${index}].choiceText`,
                         editorType: "dxTextBox",
                         label: { text: `Choice ${choice.id}` },
-                        isRequired: true
+                        isRequired: true,
+                        validationRules: [{ type: "required", message: `Choice ${choice.id} is required` }],
+                        editorOptions: { placeholder: `Enter choice ${choice.id}` }
                     }))
                 },
                 {
-                    dataField: "CorrectAnswer",
+                    dataField: "choices",
                     editorType: "dxRadioGroup",
+                    label: { text: "Correct Answer" },
                     editorOptions: {
                         items: choices.map(choice => ({ id: choice.id, text: `Choice ${choice.id}` })),
                         valueExpr: "id",
                         displayExpr: "text",
-                        layout: "horizontal"
-                    },
-                    label: { text: "Correct Answer" },
-                    isRequired: true
-                },
-                {
-                    itemType: "button",
-                    horizontalAlignment: "center",
-                    buttonOptions: {
-                        text: "Submit",
-                        useSubmitBehavior: true,
-                        onClick: function () {
-                                    let choicesData = [];
-                                            choices.forEach((choice, index) => {
-                                                let choiceText = $("#form").find(`input[name="Choices[${index}].ChoiceText"]`).val();
-                                                let isCorrect = $("#form").dxForm("instance").option("formData").CorrectAnswer === choice.id;
-
-                                                choicesData.push({
-                                                    ChoiceText: choiceText,
-                                                    IsCorrect: isCorrect
-                                                });
-                                            });
-
-                                            $("#choicesFields").empty();
-                                            choicesData.forEach((choice, index) => {
-                                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].ChoiceText" value="${choice.ChoiceText}" />`);
-                                                $("#choicesFields").append(`<input type="hidden" name="Choices[${index}].IsCorrect" value="${choice.IsCorrect}" />`);
-                                            });
-
-
-                            if ($("#form").dxForm("instance").validate().isValid) {
-                                $("#form-container").submit();
-                            }
+                        layout: "horizontal",
+                        onValueChanged: function (e) {
+                            choices.forEach(choice => choice.isCorrect = (choice.id === e.value));
+                            choices.forEach((choice, index) => {
+                                $(`input[name="[${questionCount - 1}].Choices[${index}].ChoiceText"]`).val(choice.choiceText);
+                                $(`input[name="[${questionCount - 1}].Choices[${index}].IsCorrect"]`).val(choice.isCorrect);
+                            });
                         }
-                    }
+                    },
+                    isRequired: true,
+                    validationRules: [{ type: "required", message: "Select the correct answer" }]
                 }
             ]
+            }).dxForm("instance");
+
+            formInstance.getEditor("questionText").on("valueChanged", function(e) {
+                $(`input[name="[${questionCount - 1}].QuestionText"]`).val(e.value);
+            });
+
+            $(`#remove-question-${questionCount}`).dxButton({
+                icon: "trash",
+                type: "danger",
+                onClick: function () {
+                    if ($(".card").length > 1) {
+                        $(`#${questionFormId}`).remove();
+                        toggleAddButton();
+                    } else {
+                        toastr.error("At least one question is required.");
+                    }
+                }
+            });
+
+            toggleAddButton();
+        }
+
+        function calculateTotalMarks() {
+            let totalMarks = 0;
+            $(".dx-form").each(function () {
+                let formInstance = $(this).dxForm("instance");
+                totalMarks += formInstance.option("formData").Marks || 0;
+            });
+            return totalMarks;
+        }
+
+        function validateAllForms() {
+            let isValid = true;
+            $(".dx-form").each(function () {
+                let formInstance = $(this).dxForm("instance");
+                if (!formInstance.validate().isValid) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        $(document).ready(function () {
+            $("#add-question").dxButton({
+                icon: "plus",
+                text: "Add",
+                type: "default",
+                onClick: function () {
+                    addQuestionForm(true);
+                }
+            });
+
+            $("#submit-questions").dxButton({
+                icon: "save",
+                text: "Save",
+                type: "success",
+                onClick: function () {
+                    if (!validateAllForms()) {
+                        toastr.error("Please fill in all required fields before submitting.");
+                        return;
+                    }
+
+                    // Submit the form when everything is valid
+                    $("#form-container").submit();
+                }
+            });
+
+            addQuestionForm();
+            toggleAddButton();
         });
+
+        function toggleAddButton() {
+            let remainingMarks = marksDifference - calculateTotalMarks();
+            let addButton = $("#add-question").dxButton("instance");
+            if (remainingMarks <= 0) {
+                toastr.error("No remaining marks available to add another question.");
+                addButton.option("disabled", true);
+            } else {
+                addButton.option("disabled", false);
+            }
+        }
     </script>
 }

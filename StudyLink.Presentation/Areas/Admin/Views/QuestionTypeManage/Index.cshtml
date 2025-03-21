@@ -59,22 +59,19 @@
         // });
 
         $("#questionTypeDataGrid").dxDataGrid({
-                dataSource: questionTypes,
+        dataSource: questionTypes,
         keyExpr: "questionTypeId",
         showBorders: true,
-        rowDragging: {
+                rowDragging: {
             allowReordering: true,
             onReorder: function (e) {
                 var visibleRows = e.component.getVisibleRows();
-                var newData = [];
+                var newData = visibleRows.map((row, index) => ({
+                    questionTypeId: row.data.questionTypeId,
+                    sortOrder: index + 1
+                }));
 
-                visibleRows.forEach((row, index) => {
-                    row.data.sortOrder = index + 1; 
-                    newData.push(row.data);
-                });
-
-                e.component.option("dataSource", newData); 
-                e.component.refresh(); 
+                console.log("Updated Data to Send:", newData);
 
                 $.ajax({
                     url: '@Url.Action("UpdateOrder", "QuestionTypeManage", new { area = "Admin" })',
@@ -83,60 +80,35 @@
                     data: JSON.stringify(newData),
                     success: function (data) {
                         if (data.success) {
-                             window.location.reload();
-                            toastr.success(data.message);
+                            e.component.refresh();
+                            toastr.success("Order updated successfully!");
                         } else {
                             toastr.error(data.message);
                         }
+                    },
+                    error: function () {
+                        toastr.error("Error updating order.");
                     }
                 });
             }
         },
-            columns: [
+
+        columns: [
                 {
                     dataField: "typeName",
                     caption: "Type Name",
-                     alignment: "left"
+                        alignment: "left"
                 },
                                 {
                     dataField: "fullMarks",
                     caption: "Full Marks",
-                     alignment: "left"
+                        alignment: "left"
                 },
-                                {
+                {
                     dataField: "passMarks",
                     caption: "Pass Marks",
-                     alignment: "left"
+                        alignment: "left"
                 },
-                // {
-                //     dataField: "isPublished",
-                //     caption: "Publish",
-                //     cellTemplate: function (container, options) {
-                //         var switchControl = $("<div>")
-                //             .dxSwitch({
-                //                 value: options.value,
-                //                 onValueChanged: function (e) {
-                //                     $.ajax({
-                //                         url: '@Url.Action("TogglePublishStatus", "QuestionTypeManage", new { area = "Admin" })',
-                //                         type: 'POST',
-                //                         contentType: 'application/json',
-                //                         data: JSON.stringify({
-                //                             questionTypeId: options.row.data.questionTypeId,
-                //                             isPublished: e.value
-                //                         }),
-                //                         success: function (data) {
-                //                             if (data.success) {
-                //                                 toastr.success(data.message); 
-                //                             } else {
-                //                                 switchControl.dxSwitch("instance").option("value", options.value);
-                //                                 toastr.error(data.message);
-                //                             }
-                //                         }
-                //                     });
-                //                 }
-                //             }).appendTo(container);
-                //     }
-                // },
                 {
                     caption: "Actions",
                     type: "buttons",
@@ -185,6 +157,7 @@
                                                                             } else {
                                                                                 switchControl.dxSwitch("instance").option("value", options.value);
                                                                                 toastr.error(data.message);
+                                                                               
                                                                             }
                                                                         }
                                                                     });
@@ -238,7 +211,7 @@
                 showNavigationButtons: true,
                 displayMode: "compact"
             },
-                       toolbar: {
+            toolbar: {
                 items: [
                     {
                         widget: "dxButton",
@@ -246,7 +219,7 @@
                             text: "Add Type",
                             icon: "bi bi-plus-circle",
                             elementAttr: {
-                               style: "background-color: #007bff !important; color: white;"
+                                style: "background-color: #007bff !important; color: white;"
                             },
                             iconCssClass: "text-white",
                             onClick: function () {
@@ -259,8 +232,8 @@
                         name: "searchPanel",
                         location: "after"
                     }
-                ]
-            },
+               ]
+           },
             searchPanel: {
                 visible: true,
                 width: 200,

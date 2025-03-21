@@ -22,11 +22,11 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
             _questionService = questionService;
         }
 
-        public async Task<IActionResult> Index(int id)
+        public async Task<IActionResult> Index(int questionTypeId)
         {
             try
             {
-                var questions = await _questionService.GetListForAnswer(id);
+                var questions = await _questionService.GetListForAnswer(questionTypeId);
 
                 return View(questions);
             }

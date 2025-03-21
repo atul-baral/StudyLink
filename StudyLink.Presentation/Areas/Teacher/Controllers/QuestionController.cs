@@ -30,8 +30,12 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
         {
             try
             {
+                if (questionTypeId > 0)
+                {
+                    HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                }
                 int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
-                //HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
                 var marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
 
                 if (marksDifference == 0)
@@ -53,42 +57,49 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
 
         public async Task<IActionResult> QuestionTypes(int subjectId)
         {
+
             HttpContext.Session.SetString("SubjectId", subjectId.ToString());
 
             var questionTypes = await _questionTypeService.GetListBySubjectId(subjectId);
             return View(questionTypes);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+            int questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
+            int marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
+
+            ViewBag.MarksDifference = marksDifference;
             return View();
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Create(AddQuestionVM question)
+        public async Task<IActionResult> Create(List<AddQuestionVM> addQuestionVm)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    int result = await _questionService.Add(question);
+                    int result = await _questionService.Add(addQuestionVm);
 
                     if (result == -1)
                     {
                         TempData["Error"] = "Entered marks exceed the full marks.";
-                        return View(question);
+                        return View(addQuestionVm);
                     }
 
                     TempData["Success"] = "Question created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
-                return View(question);
+                return View(addQuestionVm);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
                 TempData["Error"] = "An error occurred while creating the question.";
-                return View(question);
+                return View(addQuestionVm);
             }
         }
 
@@ -152,11 +163,11 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> GetStudentResults(int id)
+        public async Task<IActionResult> GetStudentResults(int questionTypeId)
         {
             try
             {
-                var questions = await _answerService.GetStudentResultByQuestionTypeId(id);
+                var questions = await _answerService.GetStudentResultByQuestionTypeId(questionTypeId);
                 return View(questions);
             }
             catch (Exception ex)
