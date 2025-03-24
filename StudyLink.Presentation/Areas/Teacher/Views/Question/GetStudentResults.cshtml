@@ -4,22 +4,13 @@
 
 <div id="studentDataGrid" class="table-responsive table-bordered table-striped table-hover"></div>
 
+@Html.Partial("_ResultPopup")
+
 @section Scripts {
     <script>
+        var questionTypeId = @Model.QuestionTypeId;
         var studentResults = @Html.Raw(Json.Serialize(Model.StudentResults));
         var selectedStudentId = null;
-
-        var viewPopup = $("#viewPopup").dxPopup({
-            title: "View Student Details",
-            visible: false,
-            dragEnabled: true,
-            closeOnOutsideClick: true,
-            width: 400,
-            height: 250,
-            onHiding: function () {
-                selectedStudentId = null;
-            }
-        }).dxPopup("instance");
 
         $("#studentDataGrid").dxDataGrid({
             dataSource: studentResults,
@@ -43,17 +34,20 @@
                             .appendTo(container);
                     }
                 },
-                {
+                 {
                     caption: "Actions",
                     type: "buttons",
                     buttons: [
                         {
-                            icon: "bi bi-eye", 
+                            icon: "bi bi-eye",
                             onClick: function (e) {
-                                let studentId = e.row.data.studentId;
-                                window.location.href = '@Url.Action("GetResultDetail", "Question", new { area = "Teacher" })?studentId=' + studentId;
+                                var studentId = e.row.data.studentId;
+                                var questionTypeId = @Model.QuestionTypeId;
+                                var url="GetResultDetail/";
+
+                                loadResultContent(studentId, questionTypeId, url);
                             },
-                            cssClass: "fs-6 text-info mx-1"
+                            cssClass: "fs-6 text-success mx-1"
                         }
                     ]
                 }
@@ -89,9 +83,9 @@
             }
         });
 
+
         $(document).on("click", "#cancelDeleteBtn", function () {
             viewPopup.hide();
         });
-
     </script>
 }

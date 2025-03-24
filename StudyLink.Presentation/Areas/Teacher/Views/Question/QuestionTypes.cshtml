@@ -42,6 +42,10 @@
         border: none;
     }
 
+    #questionPopup .popup-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
 </style>
 
 <div class="container my-5">
@@ -67,7 +71,7 @@
                             }
                             else
                             {
-                                <a asp-action="GetQuestionListForView" asp-controller="Question" asp-area="Teacher" asp-route-questionTypeId="@type.QuestionTypeId"
+                                <a href="javascript:void(0);" onclick="loadQuestionList(@type.QuestionTypeId, '/Teacher/Question/GetQuestionListForView')"
                                    class="btn btn-primary btn-sm">
                                     Questions
                                 </a>
@@ -84,3 +88,93 @@
         }
     </div>
 </div>
+
+
+<div id="questionPopup" style="display: none;">
+    <div id="questionContentWrapper" style="max-height: 80vh; overflow-y: auto;">
+        <div id="questionContent"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadQuestionList(questionTypeId, url) {
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: { questionTypeId: questionTypeId },
+                dataType: "json",
+                success: function(response) {
+                    if (response && response.success && Array.isArray(response.data)) {
+                        let htmlContent = buildQuestionHtml(response.data);
+                        showQuestionPopup(htmlContent);
+                    } else {
+                        console.error("Data is missing or not an array:", response);
+                        alert("Failed to load question data.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    console.error("Response Text:", xhr.responseText);
+                }
+            });
+        }
+
+        function buildQuestionHtml(data) {
+            let htmlContent = "";
+            let choiceLabels = ["A", "B", "C", "D"];
+            data.forEach((question, qIndex) => {
+                htmlContent += `
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                            <div class="row g-2">
+                `;
+
+                question.choices.forEach((choice, i) => {
+                    let choiceLabel = choiceLabels[i];
+                    let isCorrect = choice.isCorrect;
+                    let cssClass = isCorrect ? "list-group-item-success" : "list-group-item-light";
+                    let truncatedChoiceText = truncateText(choice.choiceText, 20);
+
+                    htmlContent += `
+                        <div class="col-md-6">
+                            <div class="list-group-item ${cssClass} d-flex justify-content-start align-items-center p-3 rounded">
+                                <span class="fw-bold me-2">${choiceLabel}.</span>
+                                <span class="flex-grow-1">${truncatedChoiceText}</span>
+                    `;
+
+                    if (isCorrect) {
+                        htmlContent += `<span class="badge bg-success">✔</span>`;
+                    }
+
+                    htmlContent += `</div></div>`;
+                });
+
+                htmlContent += `</div></div></div>`;
+            });
+            return htmlContent;
+        }
+
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+        }
+
+        function showQuestionPopup(contentHtml) {
+            var questionPopup = $("#questionPopup").dxPopup({
+                title: "Question List",
+                width: 700,
+                height: "auto",
+                visible: false,
+                closeOnOutsideClick: true,
+                showCloseButton: true,
+                contentTemplate: function(contentElement) {
+                    contentElement.append('<div id="questionContentWrapper" style="max-height: 80vh; overflow-y: auto;"><div id="questionContent"></div></div>');
+                }
+            }).dxPopup("instance");
+
+            questionPopup.show();
+            $("#questionContent").html(contentHtml);
+        }
+    </script>
+}

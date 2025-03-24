@@ -187,7 +187,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                 int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
                 questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
                 var questions = await _questionService.GetList(questionTypeId);
-                return View(questions);
+               return Json(new { success = true, data = questions });
             }
             catch (Exception ex)
             {
@@ -195,12 +195,32 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> GetResultDetail(int studentId)
+        /*        public async Task<IActionResult> GetResultDetail(int studentId)
+                {
+                    try
+                    {
+                        var result = await _answerService.GetResultAsync(studentId);
+                        return View(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"An error occurred: {ex.Message}");
+                        TempData["Error"] = $"An error occurred.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }*/
+
+        public async Task<IActionResult> GetResultDetail(int studentId, int questionTypeId)
         {
             try
             {
+                if (questionTypeId > 0)
+                {
+                    HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                }
+                questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
                 var result = await _answerService.GetResultAsync(studentId);
-                return View(result);
+                return Json(new { success = true, data = result });
             }
             catch (Exception ex)
             {

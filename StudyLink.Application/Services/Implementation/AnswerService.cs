@@ -187,6 +187,7 @@ namespace StudyLink.Application.Services.Implementation
 
             return new StudentQuestionTypeResultVM
             {
+                QuestionTypeId = questionType.QuestionTypeId,
                 QuestionTypeName = questionType.TypeName,
                 SubjectName = subject.SubjectName,
                 StudentResults = studentResults

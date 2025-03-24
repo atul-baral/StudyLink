@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudyLink.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5ca203a9c198c82185a39eba83543519c328897")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+89e04fbd76e969f66405c8355c234af168828625")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudyLink.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudyLink.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

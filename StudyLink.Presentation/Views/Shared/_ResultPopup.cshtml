@@ -1,8 +1,81 @@
-﻿<div id="resultPopup"></div>
+﻿<div id="resultPopup" style="display: none;">
+    <div id="resultContentWrapper" style="max-height: 80vh; overflow-y: auto;">
+        <div id="resultContent"></div>
+    </div>
+</div>
 
 <script>
-    $(document).ready(function () {
-        let resultPopup = $("#resultPopup").dxPopup({
+    function loadResultContent(studentId, questionTypeId, url) {
+        $.ajax({
+            url: url,
+            type: "GET",
+            data: { studentId: studentId, questionTypeId: questionTypeId },
+            dataType: "json",
+            success: function(response) {
+                if (response && response.success && Array.isArray(response.data)) {
+                    let htmlContent = buildResultHtml(response.data);
+                    showResultPopup(htmlContent);
+                } else {
+                    console.error("Data is missing or not an array:", response);
+                    alert("Failed to load result data.");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                console.error("Response Text:", xhr.responseText);
+            }
+        });
+    }
+
+    function buildResultHtml(data) {
+        let htmlContent = "";
+        let choiceLabels = ["A", "B", "C", "D"];
+        data.forEach((question, qIndex) => {
+            htmlContent += `
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                        <div class="row g-2">
+            `;
+
+            question.choices.forEach((choice, i) => {
+                let choiceLabel = i < choiceLabels.length ? choiceLabels[i] : String.fromCharCode(65 + i);
+                let isUserAnswer = question.answer.choiceId === choice.choiceId;
+                let isCorrect = choice.isCorrect;
+                let cssClass = isUserAnswer && isCorrect ? "list-group-item-success" :
+                    isUserAnswer && !isCorrect ? "list-group-item-danger" :
+                    !isUserAnswer && isCorrect ? "list-group-item-primary" : "list-group-item-light";
+                let truncatedChoiceText = truncateText(choice.choiceText, 20);
+
+                htmlContent += `
+                    <div class="col-md-6">
+                        <div class="list-group-item ${cssClass} d-flex justify-content-start align-items-center p-3 rounded">
+                            <span class="fw-bold me-2">${choiceLabel}.</span>
+                            <span class="flex-grow-1">${truncatedChoiceText}</span>
+                `;
+
+                if (isUserAnswer && isCorrect) {
+                    htmlContent += `<span class="badge bg-success">✔</span>`;
+                } else if (isUserAnswer && !isCorrect) {
+                    htmlContent += `<span class="badge bg-danger">✘</span>`;
+                } else if (!isUserAnswer && isCorrect) {
+                    htmlContent += `<span class="badge bg-primary">✔</span>`;
+                }
+
+                htmlContent += `</div></div>`;
+            });
+
+            htmlContent += `</div></div></div>`;
+        });
+        return htmlContent;
+    }
+
+    function truncateText(text, maxLength) {
+        return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    }
+
+    function showResultPopup(contentHtml) {
+        var resultPopup = $("#resultPopup").dxPopup({
             title: "Exam Result",
             width: 700,
             height: "auto",
@@ -14,71 +87,7 @@
             }
         }).dxPopup("instance");
 
-        $(".view-result-btn").click(function () {
-            let studentId = $(this).data("studentid");
-            let questionTypeId = $(this).data("questiontypeid");
-
-            $.ajax({
-                url: "../GetResultDetail/",
-                type: "GET",
-                data: { studentId: studentId, questionTypeId: questionTypeId },
-                dataType: "json",
-                success: function (response) {
-                    if (response && response.success && Array.isArray(response.data)) {
-                        let data = response.data;
-                        let htmlContent = "";
-                        let choiceLabels = ["A", "B", "C", "D"];
-
-                        data.forEach((question, qIndex) => {
-                            htmlContent += `
-                                <div class="card mb-4 border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
-                                        <div class="row g-2">
-                            `;
-
-                            question.choices.forEach((choice, i) => {
-                                let choiceLabel = i < choiceLabels.length ? choiceLabels[i] : String.fromCharCode(65 + i);
-                                let isUserAnswer = question.answer.choiceId === choice.choiceId;
-                                let isCorrect = choice.isCorrect;
-                                let cssClass = isUserAnswer && isCorrect ? "list-group-item-success" :
-                                    isUserAnswer && !isCorrect ? "list-group-item-danger" :
-                                    !isUserAnswer && isCorrect ? "list-group-item-primary" : "list-group-item-light";
-
-                                htmlContent += `
-                                    <div class="col-md-6">
-                                        <div class="list-group-item ${cssClass} d-flex justify-content-start align-items-center p-3 rounded">
-                                            <span class="fw-bold me-2">${choiceLabel}.</span>
-                                            <span class="flex-grow-1">${choice.choiceText}</span>
-                                `;
-
-                                if (isUserAnswer && isCorrect) {
-                                    htmlContent += `<span class="badge bg-success">✔</span>`;
-                                } else if (isUserAnswer && !isCorrect) {
-                                    htmlContent += `<span class="badge bg-danger">✘</span>`;
-                                } else if (!isUserAnswer && isCorrect) {
-                                    htmlContent += `<span class="badge bg-primary">✔</span>`;
-                                }
-
-                                htmlContent += `</div></div>`;
-                            });
-
-                            htmlContent += `</div></div></div>`;
-                        });
-
-                        resultPopup.show();
-                        $("#resultContent").html(htmlContent);
-
-                    } else {
-                        console.error("Data is missing or not an array:", response);
-                        alert("Failed to load result data.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX Error:", status, error);
-                    console.error("Response Text:", xhr.responseText);
-                }
-            });
-        });
-    });
+        resultPopup.show();
+        $("#resultContent").html(contentHtml);
+    }
 </script>
