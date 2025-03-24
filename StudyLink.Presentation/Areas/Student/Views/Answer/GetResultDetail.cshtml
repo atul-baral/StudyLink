@@ -1,0 +1,64 @@
+﻿@model List<StudyLink.Application.ViewModels.GetResultVM>
+
+@{
+    ViewData["Title"] = "Result";
+    string[] choiceLabels = { "A", "B", "C", "D" }; // Labels for choices
+}
+
+<h2 class="mb-4">Result</h2>
+
+@if (Model != null && Model.Any())
+{
+    @for (int qIndex = 0; qIndex < Model.Count; qIndex++)
+    {
+        var question = Model[qIndex];
+        var choicesList = question.Choices.ToList(); // Convert ICollection to List
+
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body">
+                <!-- Question Number and Text -->
+                <h5 class="mb-3 fw-bold">Q@(qIndex + 1). @question.QuestionText</h5>
+
+                <!-- Choices in Two Columns -->
+                <div class="row g-2">
+                    @for (int i = 0; i < choicesList.Count; i++)
+                    {
+                        var choice = choicesList[i];
+                        var choiceLabel = i < choiceLabels.Length ? choiceLabels[i] : ((char)('A' + i)).ToString(); // Assign A, B, C, D dynamically
+
+                        var isUserAnswer = question.Answer.ChoiceId == choice.ChoiceId;
+                        var isCorrect = choice.IsCorrect;
+                        var cssClass = isUserAnswer && isCorrect ? "list-group-item-success" :
+                        isUserAnswer && !isCorrect ? "list-group-item-danger" :
+                        !isUserAnswer && isCorrect ? "list-group-item-primary" : "list-group-item-light";
+
+                        <div class="col-md-6">
+                            <div class="list-group-item @cssClass d-flex justify-content-start align-items-center p-3 rounded">
+                                <span class="fw-bold me-2">@choiceLabel.</span>
+                                <span class="flex-grow-1">@choice.ChoiceText</span>
+                                @if (isUserAnswer && isCorrect)
+                                {
+                                    <span class="badge bg-success">✔ Correct & Marked</span>
+                                }
+                                else if (isUserAnswer && !isCorrect)
+                                {
+                                    <span class="badge bg-danger">✘ Incorrect</span>
+                                }
+                                else if (!isUserAnswer && isCorrect)
+                                {
+                                    <span class="badge bg-primary">✔ Correct</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No results available.</p>
+}
+
+<a href="@Url.Action("ListQuestionTypesWithResult", "Answer")" class="btn btn-secondary mt-3">Back</a>

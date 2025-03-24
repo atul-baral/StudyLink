@@ -19,5 +19,6 @@ namespace StudyLink.Application.Services.Interface
         Task<bool> HasAnswered(int subjectId, int questionTypeId, int studentId);
         Task<List<QuestionTypeResultVM>> GetQuestionTypeResultList(int subjectId);
         Task<StudentQuestionTypeResultVM> GetStudentResultByQuestionTypeId(int questionTypeId);
+        Task<List<GetResultVM>> GetResultAsync(int studentId);
     }
 }

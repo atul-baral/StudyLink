@@ -57,6 +57,25 @@ namespace StudyLink.Presentation.Areas.Student.Controllers
             }
         }
 
+        public async Task<IActionResult> GetResultDetail(int studentId, int questionTypeId)
+        {
+            try
+            {
+                if (questionTypeId > 0)
+                {
+                    HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                }
+                questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
+                var result = await _answerService.GetResultAsync(studentId);
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                TempData["Error"] = $"An error occurred.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
     }
 }

@@ -8,6 +8,7 @@ namespace StudyLink.Application.ViewModels
 {
     public class StudentQuestionTypeResultVM
     {
+        public int QuestionTypeId { get; set; }
         public string QuestionTypeName { get; set; }
         public string SubjectName { get; set; }
         public List<StudentResultVM> StudentResults { get; set; }

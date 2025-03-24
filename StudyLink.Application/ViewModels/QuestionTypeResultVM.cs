@@ -14,5 +14,6 @@ namespace StudyLink.Application.ViewModels
         public int MarksObtained { get; set; }
         public bool IsPass { get; set; }
         public bool IsAnswered { get; set; }
+        public int StudentId { get; set; }
     }
 }

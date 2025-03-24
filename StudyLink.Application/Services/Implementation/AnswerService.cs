@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StudyLink.Application.Interfaces;
 using StudyLink.Application.Services.Interface;
 using StudyLink.Application.ViewModels;
@@ -109,7 +110,7 @@ namespace StudyLink.Application.Services.Implementation
             {
                 _httpContextAccessor.HttpContext.Session.SetString("SubjectId", subjectId.ToString());
             }
-
+            subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             int studentId = await _studentSerivce.GetIdByUserId(user.Id);
             var questionTypes = await _questionTypeService.GetPublishedListBySubjectId(subjectId);
@@ -136,7 +137,8 @@ namespace StudyLink.Application.Services.Implementation
                     QuestionTypeName = questionType.TypeName,
                     MarksObtained = marksObtained,
                     IsPass = isPass,
-                    IsAnswered = hasAnswered
+                    IsAnswered = hasAnswered,
+                    StudentId = studentId
                 }); 
             }
             return questionTypeResults;
@@ -144,6 +146,11 @@ namespace StudyLink.Application.Services.Implementation
 
         public async Task<StudentQuestionTypeResultVM> GetStudentResultByQuestionTypeId(int questionTypeId)
         {
+            if (questionTypeId > 0)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+            }
+            questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
             var subject = await _subjectService.GetById(subjectId);
             var questionType = await _questionTypeService.GetById(questionTypeId);
@@ -199,6 +206,37 @@ namespace StudyLink.Application.Services.Implementation
             return answers.Sum(a => a.Question.Marks);
         }
 
+        public async Task<List<GetResultVM>> GetResultAsync(int studentId)
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            int subjectId = int.Parse(httpContext.Session.GetString("SubjectId"));
+
+            int questionTypeId = int.Parse(httpContext.Session.GetString("QuestionTypeId"));
+
+            var answers = await _unitOfWork.Answers.GetAllAsync(
+                a => a.StudentId == studentId &&
+                     a.Question.SubjectId == subjectId &&
+                     a.Question.QuestionTypeId == questionTypeId,
+                includeProperties: "Question,SelectedChoice,Question.Choices"
+            );
+
+            return answers.Select(answer => new GetResultVM
+            {
+                QuestionId = answer.Question.QuestionId,
+                QuestionText = answer.Question.QuestionText,
+                Choices = answer.Question.Choices.Select(c => new ResultChoiceVM
+                {
+                    ChoiceId = c.ChoiceId,
+                    ChoiceText = c.ChoiceText,
+                    IsCorrect = c.IsCorrect
+                }).ToList(),
+                Answer = new AnswerVM
+                {
+                    ChoiceId = answer.SelectedChoiceId
+                }
+            }).ToList();
+        }
 
     }
 }

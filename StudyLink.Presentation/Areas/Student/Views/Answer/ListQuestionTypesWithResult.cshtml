@@ -19,9 +19,12 @@
         font-size: 1.5rem;
     }
 
-    .disabled-card {
-        pointer-events: none;
-        opacity: 0.6;
+    .btn-container {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 </style>
 
@@ -37,19 +40,133 @@
             var isAnswered = type.IsAnswered;
 
             <div class="col-md-3 col-sm-6 mb-4">
-                <a asp-action="Index" asp-controller="Answer" asp-route-questionTypeId="@type.QuestionTypeId"
-                   class="card shadow-lg border-0 rounded-lg bg-white text-decoration-none d-flex flex-column
-                          @(isAnswered ? "disabled-card" : "")">
-                    <div class="card-body text-center p-4">
+                <div class="card shadow-lg border-0 rounded-lg bg-white text-center p-4">
+                    <div class="card-body d-flex flex-column align-items-center">
                         <h5 class="card-title text-primary mb-3">@type.QuestionTypeName</h5>
+
                         @if (isAnswered)
                         {
-                            <p class="text-muted">Correct Answers: @type.MarksObtained</p>
+                            <p class="text-muted">Marks Obtained: @type.MarksObtained</p>
                             <p class="text-muted">Status: @(type.IsPass ? "Pass" : "Failed")</p>
                         }
+
+                        <div class="btn-container">
+                            @if (isAnswered)
+                            {
+                                <button class="btn btn-primary btn-sm view-result-btn"
+                                        data-studentid="@type.StudentId"
+                                        data-questiontypeid="@type.QuestionTypeId">
+                                    View Result
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-action="Index" asp-controller="Answer" asp-route-questionTypeId="@type.QuestionTypeId"
+                                   class="btn btn-primary btn-sm">
+                                    Start Exam
+                                </a>
+                            }
+                        </div>
+
                     </div>
-                </a>
+                </div>
             </div>
         }
     </div>
 </div>
+
+<div id="resultPopup"></div>
+
+@section Scripts {
+    <script>
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+        }
+
+        $(document).ready(function () {
+            let resultPopup = $("#resultPopup").dxPopup({
+                title: "Exam Result",
+                width: 700,
+                height: "auto",
+                visible: false,
+                closeOnOutsideClick: true,
+                showCloseButton: true,
+                contentTemplate: function(contentElement) {
+                    contentElement.append('<div id="resultContentWrapper" style="max-height: 80vh; overflow-y: auto;"><div id="resultContent"></div></div>');
+                }
+            }).dxPopup("instance");
+
+            $(".view-result-btn").click(function () {
+                let studentId = $(this).data("studentid");
+                let questionTypeId = $(this).data("questiontypeid");
+
+                $.ajax({
+                    url: "../GetResultDetail/",
+                    type: "GET",
+                    data: { studentId: studentId, questionTypeId: questionTypeId },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response && response.success && Array.isArray(response.data)) {
+                            let data = response.data;
+                            let htmlContent = "";
+                            let choiceLabels = ["A", "B", "C", "D"];
+
+                            data.forEach((question, qIndex) => {
+                                htmlContent += `
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                                            <div class="row g-2">
+                                `;
+
+                                question.choices.forEach((choice, i) => {
+                                    let choiceLabel = i < choiceLabels.length ? choiceLabels[i] : String.fromCharCode(65 + i);
+                                    let isUserAnswer = question.answer.choiceId === choice.choiceId;
+                                    let isCorrect = choice.isCorrect;
+                                    let cssClass = isUserAnswer && isCorrect ? "list-group-item-success" :
+                                        isUserAnswer && !isCorrect ? "list-group-item-danger" :
+                                        !isUserAnswer && isCorrect ? "list-group-item-primary" : "list-group-item-light";
+                                        let truncatedChoiceText = truncateText(choice.choiceText, 20);
+
+                                    htmlContent += `
+                                        <div class="col-md-6">
+                                            <div class="list-group-item ${cssClass} d-flex justify-content-start align-items-center p-3 rounded">
+                                                <span class="fw-bold me-2">${choiceLabel}.</span>
+                                                <span class="flex-grow-1">${truncatedChoiceText}</span>
+                                    `;
+
+                                    if (isUserAnswer && isCorrect) {
+                                        htmlContent += `<span class="badge bg-success">✔</span>`;
+                                    } else if (isUserAnswer && !isCorrect) {
+                                        htmlContent += `<span class="badge bg-danger">✘</span>`;
+                                    } else if (!isUserAnswer && isCorrect) {
+                                        htmlContent += `<span class="badge bg-primary">✔</span>`;
+                                    }
+
+                                    htmlContent += `</div></div>`;
+                                });
+
+                                htmlContent += `</div></div></div>`;
+                            });
+                             resultPopup.show();
+                            $("#resultContent").html(htmlContent);
+                            
+                        } else {
+                            console.error("Data is missing or not an array:", response);
+                            alert("Failed to load result data.");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        console.error("Response Text:", xhr.responseText); 
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+
+
+
+

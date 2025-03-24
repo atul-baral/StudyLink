@@ -50,8 +50,8 @@
                         {
                             icon: "bi bi-eye", 
                             onClick: function (e) {
-                                var studentId = e.row.data.StudentId;
-                                window.location.href = '@Url.Action("ViewDetails", "StudentManage", new { area = "Admin" })/' + studentId;
+                                let studentId = e.row.data.studentId;
+                                window.location.href = '@Url.Action("GetResultDetail", "Question", new { area = "Teacher" })?studentId=' + studentId;
                             },
                             cssClass: "fs-6 text-info mx-1"
                         }

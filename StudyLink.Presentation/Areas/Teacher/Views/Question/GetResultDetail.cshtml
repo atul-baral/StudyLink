@@ -1,0 +1,43 @@
+﻿@model List<StudyLink.Application.ViewModels.GetResultVM>
+
+@{
+    ViewData["Title"] = "Result";
+}
+
+<h2>Result</h2>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var question in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4>@question.QuestionText</h4>
+                <ul class="list-group">
+                    @foreach (var choice in question.Choices)
+                    {
+                        <li class="list-group-item
+                            @(question.Answer.ChoiceId == choice.ChoiceId ? "list-group-item-primary" : "")
+                            @(choice.IsCorrect ? "list-group-item-success" : "")">
+                            @choice.ChoiceText
+                            @if (choice.IsCorrect)
+                            {
+                                <span class="badge bg-success">Correct Answer</span>
+                            }
+                            @if (question.Answer.ChoiceId == choice.ChoiceId)
+                            {
+                                <span class="badge bg-primary">Your Answer</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No results available.</p>
+}
+
+<a href="@Url.Action("Index", "Question")" class="btn btn-secondary mt-3">Back</a>
