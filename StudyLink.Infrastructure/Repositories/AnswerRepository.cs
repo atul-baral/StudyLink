@@ -9,7 +9,7 @@ using StudyLink.Infrastructure.Repository;
 
 namespace StudyLink.Infrastructure.Repositories
 {
-    public class AnswerRepository : Repository<Answer>, IAnswerRepository
+    internal class AnswerRepository : Repository<Answer>, IAnswerRepository
     {
         private readonly StudyLinkDbContext _context;
 

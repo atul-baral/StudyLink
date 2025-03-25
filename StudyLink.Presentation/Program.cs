@@ -22,14 +22,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<StudyLinkDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<ITeacherService, TeacherService>();
-builder.Services.AddScoped<ISubjectService, SubjectService>();
-builder.Services.AddScoped<IQuestionTypeService, QuestionTypeService>();
-builder.Services.AddScoped<IQuestionService, QuestionService>();
-builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(MapperProfile).Assembly);

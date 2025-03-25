@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Result";
-    string[] choiceLabels = { "A", "B", "C", "D" }; // Labels for choices
+    string[] choiceLabels = { "A", "B", "C", "D" }; 
 }
 
 <h2 class="mb-4">Result</h2>
@@ -12,19 +12,17 @@
     @for (int qIndex = 0; qIndex < Model.Count; qIndex++)
     {
         var question = Model[qIndex];
-        var choicesList = question.Choices.ToList(); // Convert ICollection to List
+        var choicesList = question.Choices.ToList();
 
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body">
-                <!-- Question Number and Text -->
                 <h5 class="mb-3 fw-bold">Q@(qIndex + 1). @question.QuestionText</h5>
 
-                <!-- Choices in Two Columns -->
                 <div class="row g-2">
                     @for (int i = 0; i < choicesList.Count; i++)
                     {
                         var choice = choicesList[i];
-                        var choiceLabel = i < choiceLabels.Length ? choiceLabels[i] : ((char)('A' + i)).ToString(); // Assign A, B, C, D dynamically
+                        var choiceLabel = i < choiceLabels.Length ? choiceLabels[i] : ((char)('A' + i)).ToString(); 
 
                         var isUserAnswer = question.Answer.ChoiceId == choice.ChoiceId;
                         var isCorrect = choice.IsCorrect;

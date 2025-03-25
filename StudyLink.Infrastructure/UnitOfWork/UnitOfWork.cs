@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StudyLink.Infrastructure
 {
-    public class UnitOfWork : IUnitOfWork
+    internal class UnitOfWork : IUnitOfWork
     {
         private readonly StudyLinkDbContext _context;
         public IStudentRepository Students { get; private set; }

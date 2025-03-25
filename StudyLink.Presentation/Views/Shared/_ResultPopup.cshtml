@@ -11,7 +11,7 @@
             type: "GET",
             data: { studentId: studentId, questionTypeId: questionTypeId },
             dataType: "json",
-            success: function(response) {
+            success: function (response) {
                 if (response && response.success && Array.isArray(response.data)) {
                     let htmlContent = buildResultHtml(response.data);
                     showResultPopup(htmlContent);
@@ -20,7 +20,7 @@
                     alert("Failed to load result data.");
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("AJAX Error:", status, error);
                 console.error("Response Text:", xhr.responseText);
             }
@@ -30,21 +30,35 @@
     function buildResultHtml(data) {
         let htmlContent = "";
         let choiceLabels = ["A", "B", "C", "D"];
+
         data.forEach((question, qIndex) => {
+            let isUnanswered = !question.answer || question.answer.choiceId === null;
+
             htmlContent += `
                 <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
-                        <div class="row g-2">
+                    <div class="card-body position-relative">
+            `;
+
+            if (isUnanswered) {
+                htmlContent += `
+                    <span class="badge bg-warning position-absolute top-0 end-0 m-2">Unanswered</span>
+                `;
+            }
+
+            htmlContent += `
+                <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                <div class="row g-2">
             `;
 
             question.choices.forEach((choice, i) => {
                 let choiceLabel = i < choiceLabels.length ? choiceLabels[i] : String.fromCharCode(65 + i);
-                let isUserAnswer = question.answer.choiceId === choice.choiceId;
+                let isUserAnswer = question.answer && question.answer.choiceId === choice.choiceId;
                 let isCorrect = choice.isCorrect;
-                let cssClass = isUserAnswer && isCorrect ? "list-group-item-success" :
+                let cssClass =
+                    isUserAnswer && isCorrect ? "list-group-item-success" :
                     isUserAnswer && !isCorrect ? "list-group-item-danger" :
-                    !isUserAnswer && isCorrect ? "list-group-item-primary" : "list-group-item-light";
+                    !isUserAnswer && isCorrect ? "list-group-item-primary" :
+                    "list-group-item-light";
                 let truncatedChoiceText = truncateText(choice.choiceText, 20);
 
                 htmlContent += `
@@ -62,11 +76,19 @@
                     htmlContent += `<span class="badge bg-primary">✔</span>`;
                 }
 
-                htmlContent += `</div></div>`;
+                htmlContent += `
+                        </div>
+                    </div>
+                `;
             });
 
-            htmlContent += `</div></div></div>`;
+            htmlContent += `
+                </div>
+                </div>
+                </div>
+            `;
         });
+
         return htmlContent;
     }
 
@@ -76,14 +98,18 @@
 
     function showResultPopup(contentHtml) {
         var resultPopup = $("#resultPopup").dxPopup({
-            title: "Exam Result",
+            title: "Result",
             width: 700,
             height: "auto",
             visible: false,
             closeOnOutsideClick: true,
             showCloseButton: true,
-            contentTemplate: function(contentElement) {
-                contentElement.append('<div id="resultContentWrapper" style="max-height: 80vh; overflow-y: auto;"><div id="resultContent"></div></div>');
+            contentTemplate: function (contentElement) {
+                contentElement.append(`
+                    <div id="resultContentWrapper" style="max-height: 80vh; overflow-y: auto;">
+                        <div id="resultContent"></div>
+                    </div>
+                `);
             }
         }).dxPopup("instance");
 

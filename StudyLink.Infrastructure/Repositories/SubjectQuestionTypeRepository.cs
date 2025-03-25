@@ -10,7 +10,7 @@ using StudyLink.Infrastructure.Repository;
 
 namespace StudyLink.Infrastructure.Repositories
 {
-    public class SubjectQuestionTypeRepository: Repository<SubjectQuestionType>, ISubjectQuestionTypeRepository
+    internal class SubjectQuestionTypeRepository: Repository<SubjectQuestionType>, ISubjectQuestionTypeRepository
     {
         private readonly StudyLinkDbContext _context;
         public SubjectQuestionTypeRepository(StudyLinkDbContext context) : base(context) 

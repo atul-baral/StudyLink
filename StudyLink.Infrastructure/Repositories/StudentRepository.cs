@@ -8,7 +8,7 @@ using StudyLink.Infrastructure.Repository;
 
 namespace StudyLink.Infrastructure.Repositories
 {
-    public class StudentRepository : Repository<Student>, IStudentRepository
+    internal class StudentRepository : Repository<Student>, IStudentRepository
     {
         private readonly StudyLinkDbContext _context;
 

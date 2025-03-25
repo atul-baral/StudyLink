@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StudyLink.Application.Services.Implementation
 {
-    public class SubjectService : ISubjectService
+    internal class SubjectService : ISubjectService
     {
         private readonly IUnitOfWork _unitOfWork;
 

@@ -11,7 +11,7 @@ using AutoMapper;
 
 namespace StudyLink.Application.Services.Implementation
 {
-    public class StudentService : IStudentService
+    internal class StudentService : IStudentService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;

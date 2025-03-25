@@ -195,21 +195,6 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
             }
         }
 
-        /*        public async Task<IActionResult> GetResultDetail(int studentId)
-                {
-                    try
-                    {
-                        var result = await _answerService.GetResultAsync(studentId);
-                        return View(result);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"An error occurred: {ex.Message}");
-                        TempData["Error"] = $"An error occurred.";
-                        return RedirectToAction(nameof(Index));
-                    }
-                }*/
-
         public async Task<IActionResult> GetResultDetail(int studentId, int questionTypeId)
         {
             try

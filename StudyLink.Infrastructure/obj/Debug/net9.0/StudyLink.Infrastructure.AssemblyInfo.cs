@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudyLink.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+89e04fbd76e969f66405c8355c234af168828625")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ac306177c685b3a02552a8330cb067cbc2ccd2f")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudyLink.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudyLink.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

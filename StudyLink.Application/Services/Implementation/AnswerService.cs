@@ -15,7 +15,7 @@ using StudyLink.Domain.Entities;
 
 namespace StudyLink.Application.Services.Implementation
 {
-    public class AnswerService : IAnswerService
+    internal class AnswerService : IAnswerService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -203,7 +203,6 @@ namespace StudyLink.Application.Services.Implementation
                      a.SelectedChoice.IsCorrect,
                 includeProperties: "Question"
             );
-
             return answers.Sum(a => a.Question.Marks);
         }
 

@@ -8,7 +8,7 @@ using StudyLink.Domain.Entities;
 
 namespace StudyLink.Application.Services.Implementation
 {
-    public class QuestionService : IQuestionService
+    internal class QuestionService : IQuestionService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;

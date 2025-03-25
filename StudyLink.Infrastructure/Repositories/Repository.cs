@@ -9,7 +9,7 @@ using StudyLink.Infrastructure;
 
 namespace StudyLink.Infrastructure.Repository
 {
-    public class Repository<T> : IRepository<T> where T : class
+    internal class Repository<T> : IRepository<T> where T : class
     {
         private readonly StudyLinkDbContext _db;
         internal DbSet<T> dbSet;

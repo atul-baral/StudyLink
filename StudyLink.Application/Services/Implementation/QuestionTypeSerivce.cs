@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace StudyLink.Application.Services.Implementation
 {
-    public class QuestionTypeService : IQuestionTypeService
+    internal class QuestionTypeService : IQuestionTypeService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -23,18 +23,6 @@ namespace StudyLink.Application.Services.Implementation
             var questionTypes = await _unitOfWork.QuestionTypes.GetAllAsync(includeProperties: "SubjectQuestionTypes");
             return questionTypes.OrderBy(q => q.SortOrder);
         }
-
-/*        public async Task<IEnumerable<QuestionType>> GetListBySubjectId(int subjectId)
-        {
-            var questionTypes = await _unitOfWork.QuestionTypes
-                .GetAllAsync(includeProperties: "SubjectQuestionTypes");
-
-            var filteredQuestionTypes = questionTypes
-                .Where(qt => qt.SubjectQuestionTypes
-                    .Any(sqt => sqt.SubjectId == subjectId))
-                .OrderByDescending(q => q.SortOrder);
-            return filteredQuestionTypes;
-        }*/
         
         public async Task<IEnumerable<QuestionType>> GetListBySubjectId(int subjectId)
         {
@@ -102,17 +90,6 @@ namespace StudyLink.Application.Services.Implementation
             }
             await _unitOfWork.CompleteAsync();
         }
-
-/*        public async Task TogglePublishStatus(int questionTypeId, bool isActive)
-        {
-            var questionType = await _unitOfWork.QuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId);
-            if (questionType != null)
-            {
-                questionType.IsPublished = isActive;
-                await _unitOfWork.QuestionTypes.UpdateAsync(questionType);
-                await _unitOfWork.CompleteAsync();
-            }
-        }*/
 
         public async Task<IEnumerable<QuestionType>> GetPublishedListBySubjectId(int subjectId)
         {
