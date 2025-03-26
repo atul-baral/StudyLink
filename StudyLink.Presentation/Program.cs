@@ -9,6 +9,7 @@ using StudyLink.Application.Services.Implementation;
 using Microsoft.AspNetCore.Identity;
 using StudyLink.Domain.Entities;
 using StudyLink.Application.Mapper;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,14 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddHangfire(config =>
+           config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                 .UseSimpleAssemblyNameTypeSerializer()
+                 .UseRecommendedSerializerSettings()
+                 .UseSqlServerStorage(builder.Configuration.GetConnectionString("StudyLinkContextConnection")));
+
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 

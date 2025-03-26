@@ -25,7 +25,18 @@
                 items: [
                     { dataField: "typeName", isRequired: true },
                     { dataField: "fullMarks", isRequired: true },
-                    { dataField: "passMarks", isRequired: true }
+                    { dataField: "passMarks", isRequired: true },
+                    {
+                        dataField: "publishDate",
+                        label: { text: "Publish Date" },
+                        editorType: "dxDateBox",
+                        editorOptions: {
+                            type: "datetime",
+                            displayFormat: "yyyy-MM-dd HH:mm",
+                            showClearButton: true
+                        },
+                        isRequired: true
+                    }
                 ]
             }, {
                 itemType: "button",

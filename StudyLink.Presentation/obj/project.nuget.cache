@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "47CBv+SrtiM=",
+  "dgSpecHash": "xIgHv8se1I4=",
   "success": true,
   "projectFilePath": "E:\\PROJECTS\\Spiral_PRJ\\Intern\\StudyLink\\StudyLink.Presentation\\StudyLink.Presentation.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,11 @@
     "C:\\Users\\Atul Baral\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Atul Baral\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
     "C:\\Users\\Atul Baral\\.nuget\\packages\\devextreme.aspnet.data\\5.0.0\\devextreme.aspnet.data.5.0.0.nupkg.sha512",
+    "C:\\Users\\Atul Baral\\.nuget\\packages\\hangfire\\1.8.18\\hangfire.1.8.18.nupkg.sha512",
+    "C:\\Users\\Atul Baral\\.nuget\\packages\\hangfire.aspnetcore\\1.8.18\\hangfire.aspnetcore.1.8.18.nupkg.sha512",
+    "C:\\Users\\Atul Baral\\.nuget\\packages\\hangfire.core\\1.8.18\\hangfire.core.1.8.18.nupkg.sha512",
+    "C:\\Users\\Atul Baral\\.nuget\\packages\\hangfire.netcore\\1.8.18\\hangfire.netcore.1.8.18.nupkg.sha512",
+    "C:\\Users\\Atul Baral\\.nuget\\packages\\hangfire.sqlserver\\1.8.18\\hangfire.sqlserver.1.8.18.nupkg.sha512",
     "C:\\Users\\Atul Baral\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\Atul Baral\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Atul Baral\\.nuget\\packages\\humanizer.core.af\\2.14.1\\humanizer.core.af.2.14.1.nupkg.sha512",
