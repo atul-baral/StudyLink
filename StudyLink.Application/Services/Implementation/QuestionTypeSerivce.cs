@@ -1,4 +1,6 @@
 ﻿using Hangfire;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StudyLink.Application.Interfaces;
 using StudyLink.Application.Services.Interface;
 using StudyLink.Application.ViewModels;
@@ -13,10 +15,12 @@ namespace StudyLink.Application.Services.Implementation
     internal class QuestionTypeService : IQuestionTypeService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPublishEmailNotificationService _publishEmailNotificationService;
 
-        public QuestionTypeService(IUnitOfWork unitOfWork)
+        public QuestionTypeService(IUnitOfWork unitOfWork, IPublishEmailNotificationService publishEmailNotificationService)
         {
             _unitOfWork = unitOfWork;
+            _publishEmailNotificationService = publishEmailNotificationService;
         }
 
         public async Task<IEnumerable<QuestionType>> GetList()
@@ -61,7 +65,7 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.QuestionTypes.AddAsync(questionType);
             await _unitOfWork.CompleteAsync();
 
-            SchedulePublishJobs(questionType);
+            _publishEmailNotificationService.SchedulePublishJobs(questionType);
         }
 
         public async Task Update(QuestionType questionType)
@@ -69,8 +73,8 @@ namespace StudyLink.Application.Services.Implementation
             await _unitOfWork.QuestionTypes.UpdateAsync(questionType);
             await _unitOfWork.CompleteAsync();
 
-            RemoveExistingJobs(questionType.QuestionTypeId);
-            SchedulePublishJobs(questionType);
+             _publishEmailNotificationService.RemoveExistingJobs(questionType.QuestionTypeId);
+             _publishEmailNotificationService.SchedulePublishJobs(questionType);
         }
 
         public async Task Delete(int id)
@@ -139,69 +143,6 @@ namespace StudyLink.Application.Services.Implementation
         {
            var subjects = await _unitOfWork.SubjectQuestionTypes.GetAllAsync(x=> x.QuestionTypeId == questionTypeId, includeProperties: "Subject");
             return subjects;
-        }
-
-        private void SchedulePublishJobs(QuestionType questionType)
-        {
-            if (questionType.PublishDate != null)
-            {
-                DateTime publishDate = questionType.PublishDate;
-
-                BackgroundJob.Schedule(() => SendEmailNotification(questionType.QuestionTypeId), publishDate.AddMinutes(-2)); 
-                BackgroundJob.Schedule(() => SendEmailNotification(questionType.QuestionTypeId), publishDate.AddMinutes(-1));  
-                BackgroundJob.Schedule(() => ExecutePublishJob(questionType.QuestionTypeId), publishDate.AddMinutes(-5));    
-            }
-        }
-
-        private void RemoveExistingJobs(int questionTypeId)
-        {
-            BackgroundJob.Delete($"email_job_1_{questionTypeId}");
-            BackgroundJob.Delete($"email_job_2_{questionTypeId}");
-            BackgroundJob.Delete($"publish_job_{questionTypeId}");
-        }
-
-        public async Task ExecutePublishJob(int questionTypeId)
-        {
-            var questionType = await _unitOfWork.QuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId);
-            var subjectQuestionTypes = await _unitOfWork.SubjectQuestionTypes
-                .GetAllAsync(sqt => sqt.QuestionTypeId == questionTypeId, includeProperties: "Subject");
-
-            List<string> failedSubjects = new List<string>();
-
-            foreach (var subjectQuestionType in subjectQuestionTypes)
-            {
-                try
-                {
-                    int result = await TogglePublishStatus(questionTypeId, subjectQuestionType.SubjectId, true);
-                    if (result == 1)
-                    {
-                        Console.WriteLine($"✅ Successfully published Question Type '{questionType.TypeName}' for Subject '{subjectQuestionType.Subject.SubjectName}'.");
-                    }
-                    else
-                    {
-                        failedSubjects.Add(subjectQuestionType.Subject.SubjectName);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    failedSubjects.Add(subjectQuestionType.Subject.SubjectName);
-                    Console.WriteLine($"❌ Error publishing '{subjectQuestionType.Subject.SubjectName}': {ex.Message}");
-                }
-            }
-
-            if (failedSubjects.Any())
-            {
-                Console.WriteLine($"⚠️ Failed to publish for the following subjects: {string.Join(", ", failedSubjects)}");
-            }
-        }
-
-        public async Task SendEmailNotification(int questionTypeId)
-        {
-            var questionType = await _unitOfWork.QuestionTypes.GetAsync(q => q.QuestionTypeId == questionTypeId);
-            if (questionType != null)
-            {
-                Console.WriteLine($"📧 Email notification sent for Question Type: {questionType.TypeName}");
-            }
         }
     }
 }

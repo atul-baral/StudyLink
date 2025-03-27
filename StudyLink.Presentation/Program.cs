@@ -84,7 +84,7 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    string email = "admin@gmail.com";
+    string email = "admin123@yopmail.com";
     string password = "Admin@1234";
     string firstName = "Admin";
     string lastName = "Admin";

@@ -15,6 +15,8 @@ namespace StudyLink.Application
             services.AddScoped<IQuestionTypeService, QuestionTypeService>();
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<IAnswerService, AnswerService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IPublishEmailNotificationService, PublishEmailNotificationService>();
         }
     }
 }

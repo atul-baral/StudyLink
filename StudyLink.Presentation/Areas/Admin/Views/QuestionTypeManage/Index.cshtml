@@ -112,7 +112,11 @@
                 {
                     dataField: "publishDate",
                     caption: "Publish Date",
-                        alignment: "left"
+                    alignment: "left",
+                    calculateDisplayValue: function(rowData) {
+                        const date = new Date(rowData.publishDate);
+                        return date.toLocaleString('en-GB');
+                    }
                 },
                 {
                     caption: "Actions",
