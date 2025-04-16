@@ -16,5 +16,6 @@ namespace StudyLink.Application.Services.Interface
         Task<IEnumerable<AddAnswerVM>> GetListForAnswer(int questionTypeId);
         Task<IEnumerable<int>> GetQuestionTypeList(int subjectId);
         Task<int> GetQuestionCount(int subjectId, int questionTypeId);
+        Task<List<AddQuestionVM>> GetListForAddQuestion(int questionTypeId);
     }
 }

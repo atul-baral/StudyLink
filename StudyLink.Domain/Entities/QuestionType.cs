@@ -16,6 +16,7 @@ namespace StudyLink.Domain.Entities
         public int FullMarks { get; set; }
         public int PassMarks { get; set; }
         public DateTime PublishDate { get; set; }
+        public DateTime EndDate { get; set; }
         public bool IsPublished { get; set; }
         public bool IsDeleted { get; set; } = false;
 

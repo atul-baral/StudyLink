@@ -135,6 +135,7 @@ namespace StudyLink.Application.Services.Implementation
                 {
                     QuestionTypeId = questionType.QuestionTypeId,
                     QuestionTypeName = questionType.TypeName,
+                    EndDate = questionType.EndDate,
                     MarksObtained = marksObtained,
                     IsPass = isPass,
                     IsAnswered = hasAnswered,

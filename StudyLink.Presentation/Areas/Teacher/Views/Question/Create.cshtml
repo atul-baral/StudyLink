@@ -4,7 +4,7 @@
     ViewData["Title"] = "Add Question";
 }
 
-<h2 class="mb-3 text-center">Add Questions</h2>
+<h2 class="mb-3 text-center">Manage Questions</h2>
 
 <div class="container d-flex justify-content-center">
     <div class="col-lg-8 col-md-10 col-sm-12">
@@ -22,137 +22,170 @@
 @section Scripts {
     <script>
         let questionCount = 0;
-        let marksDifference = isNaN(@ViewBag.MarksDifference) ? 0 : @ViewBag.MarksDifference;
+        let existingQuestions = @Html.Raw(Json.Serialize(Model));
+        let totalAllowedMarks = @Html.Raw(Json.Serialize(ViewBag.FullMarks ?? 0));
 
+        function getCurrentMarksDifference() {
+            return totalAllowedMarks - calculateTotalMarks();
+        }
 
-        function addQuestionForm(validateBeforeAdd = false) {
-            if (marksDifference <= 0) {
-                toastr.error("No remaining marks available to add another question.");
-                return;
-            }
+        console.log("Total Allowed Marks:", totalAllowedMarks);
 
-            if (validateBeforeAdd && !validateAllForms()) {
-                toastr.error("Please fill in all required fields before adding a new question.");
-                return;
-            }
-
+        function addQuestionForm(validateBeforeAdd = false, questionData = null) {
+            let isUpdate = questionData !== null;
             questionCount++;
             let questionFormId = `form_${questionCount}`;
 
-        let choices = [
-            { id: "A", choiceText: "", isCorrect: false },
-            { id: "B", choiceText: "", isCorrect: false },
-            { id: "C", choiceText: "", isCorrect: false },
-            { id: "D", choiceText: "", isCorrect: false }
-        ];
+            let choices = isUpdate ? questionData.choices : [
+                { id: "A", choiceText: "", isCorrect: false },
+                { id: "B", choiceText: "", isCorrect: false },
+                { id: "C", choiceText: "", isCorrect: false },
+                { id: "D", choiceText: "", isCorrect: false }
+            ];
 
-        let $questionCard = $(`
-            <div id="${questionFormId}" class="card mt-3 shadow-sm border-0 rounded">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-2">Question ${questionCount}</h6>
-                        <div id="remove-question-${questionCount}"></div>
+            let $questionCard = $(`
+                <div id="${questionFormId}" class="card mt-3 shadow-sm border-0 rounded">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="card-title mb-2">Question ${questionCount}</h6>
+                            <div id="remove-question-${questionCount}"></div>
+                        </div>
+                        <div id="dx-form-${questionCount}"></div>
+                        <!-- Hidden fields for QuestionId and Marks -->
+                        <input type="hidden" name="[${questionCount - 1}].QuestionId" value="${isUpdate ? questionData.questionId : 0}" />
+                        <input type="hidden" name="[${questionCount - 1}].Marks" value="${isUpdate ? questionData.marks : 1}" />
+                        <input type="hidden" name="[${questionCount - 1}].QuestionText" value="${isUpdate ? questionData.questionText : ""}" />
+
+                        <!-- Hidden fields for Choices -->
+                        ${choices.map((choice, index) => `
+                            <input type="hidden" name="[${questionCount - 1}].Choices[${index}].ChoiceId" value="${isUpdate ? choice.choiceId : 0}" />
+                            <input type="hidden" name="[${questionCount - 1}].Choices[${index}].ChoiceText" value="${choice.choiceText}" />
+                            <input type="hidden" name="[${questionCount - 1}].Choices[${index}].IsCorrect" value="${choice.isCorrect}" />
+                        `).join("")}
                     </div>
-                    <div id="dx-form-${questionCount}"></div>
-                    <!-- Hidden fields for QuestionId and Marks -->
-                    <input type="hidden" name="[${questionCount - 1}].Marks" value="1" />
-                    <input type="hidden" name="[${questionCount - 1}].QuestionText" value="" />
-
-                    <!-- Hidden fields for Choices -->
-                    ${choices.map((choice, index) => `
-                        <input type="hidden" name="[${questionCount - 1}].Choices[${index}].ChoiceText" value="${choice.choiceText}" />
-                        <input type="hidden" name="[${questionCount - 1}].Choices[${index}].IsCorrect" value="${choice.isCorrect}" />
-                    `).join("")}
                 </div>
-            </div>
-        `);
+            `);
 
-        $("#questions-container").append($questionCard);
+            $("#questions-container").append($questionCard);
 
-        let formInstance = $(`#dx-form-${questionCount}`).dxForm({
-            formData: {
-                questionText: "",
-                marks: 1,
-                choices: choices
-            },
-            labelLocation: "top",
-            validationGroup: `group_${questionCount}`,
-            items: [
-                {
-                    itemType: "group",
-                    caption: "Question Details",
-                    colCount: 1,
-                    items: [
-                        {
-                            dataField: "questionText",
-                            editorType: "dxTextArea",
-                            isRequired: true,
-                            validationRules: [{ type: "required", message: "Question is required" }],
-                            editorOptions: { height: 80, placeholder: "Enter the question..." }
-                        },
-                        {
-                            dataField: "marks",
-                            editorType: "dxNumberBox",
-                            isRequired: true,
-                            validationRules: [{ type: "required", message: "Marks are required" }],
-                            editorOptions: {
-                                min: 1,
-                                max: Math.min(5, marksDifference),
-                                value: 1,
-                                width: "100px",
-                                onValueChanged: function (e) {
-                                    $(`input[name="[${questionCount - 1}].Marks"]`).val(e.value);
-                                    let totalMarksUsed = calculateTotalMarks();
-                                    if (totalMarksUsed > marksDifference) {
-                                        toastr.error(`Marks exceed the available limit (${marksDifference}).`);
-                                        e.component.option("value", marksDifference - (totalMarksUsed - e.value));
-                                        return;
-                                    }
-                                    toggleAddButton();
+            let formInstance = $(`#dx-form-${questionCount}`).dxForm({
+                formData: {
+                    questionText: isUpdate ? questionData.questionText : "",
+                    marks: isUpdate ? questionData.marks : 1,
+                    choices: choices
+                },
+                labelLocation: "top",
+                validationGroup: `group_${questionCount}`,
+                items: [
+                    {
+                        itemType: "group",
+                        caption: "Question Details",
+                        colCount: 1,
+                        items: [
+                            {
+                                dataField: "questionText",
+                                editorType: "dxTextArea",
+                                isRequired: true,
+                                validationRules: [{ type: "required", message: "Question is required" }],
+                                editorOptions: {
+                                    height: 80,
+                                    placeholder: "Enter the question...",
+                                    value: isUpdate ? questionData.questionText : ""
                                 }
                             },
+                            {
+                                dataField: "marks",
+                                editorType: "dxNumberBox",
+                                isRequired: true,
+                                validationRules: [{ type: "required", message: "Marks are required" }],
+                                editorOptions: {
+                                    min: 1,
+                                    max: 5,
+                                    value: isUpdate ? questionData.marks : 1,
+                                    width: "100px",
+                                    onValueChanged: function (e) {
+                                        const questionIndex = questionCount - 1;
+                                        const $marksInput = $(`input[name="[${questionIndex}].Marks"]`);
 
-                        }
-                    ]
-                },
-                {
-                    itemType: "group",
-                    caption: "Choices",
-                    colCount: 2,
-                    items: choices.map((choice, index) => ({
-                        dataField: `choices[${index}].choiceText`,
-                        editorType: "dxTextBox",
-                        label: { text: `Choice ${choice.id}` },
-                        isRequired: true,
-                        validationRules: [{ type: "required", message: `Choice ${choice.id} is required` }],
-                        editorOptions: { placeholder: `Enter choice ${choice.id}` }
-                    }))
-                },
-                {
-                    dataField: "choices",
-                    editorType: "dxRadioGroup",
-                    label: { text: "Correct Answer" },
-                    editorOptions: {
-                        items: choices.map(choice => ({ id: choice.id, text: `Choice ${choice.id}` })),
-                        valueExpr: "id",
-                        displayExpr: "text",
-                        layout: "horizontal",
-                        onValueChanged: function (e) {
-                            choices.forEach(choice => choice.isCorrect = (choice.id === e.value));
-                            choices.forEach((choice, index) => {
-                                $(`input[name="[${questionCount - 1}].Choices[${index}].ChoiceText"]`).val(choice.choiceText);
-                                $(`input[name="[${questionCount - 1}].Choices[${index}].IsCorrect"]`).val(choice.isCorrect);
-                            });
-                        }
+                                        let newVal = e.value || 0;
+                                        const previousVal = e.previousValue || 0;
+
+                                        e.component.option("value", newVal);
+                                        const total = calculateTotalMarks();
+
+                                        if (total > totalAllowedMarks) {
+                                            toastr.error(`Total marks exceeded! You only have ${totalAllowedMarks - (total - newVal)} marks left.`);
+                                            newVal = Math.max(totalAllowedMarks - (calculateTotalMarks() - newVal), 0);
+                                            e.component.option("value", newVal);
+                                        }
+
+                                        $marksInput.val(newVal);
+                                        toggleAddButton();
+                                    }
+
+                                }
+                            }
+                        ]
                     },
-                    isRequired: true,
-                    validationRules: [{ type: "required", message: "Select the correct answer" }]
-                }
-            ]
+                    {
+                        itemType: "group",
+                        caption: "Choices",
+                        colCount: 2,
+                        items: choices.map((choice, index) => {
+                            let choiceLabel = isUpdate ? String.fromCharCode(65 + index) : choice.id;
+                            return {
+                                dataField: `choices[${index}].choiceText`,
+                                editorType: "dxTextBox",
+                                label: { text: `Choice ${choiceLabel}` },
+                                isRequired: true,
+                                validationRules: [{ type: "required", message: `Choice ${choiceLabel} is required` }],
+                                editorOptions: { placeholder: `Enter choice ${choiceLabel}` }
+                            };
+                        })
+                    },
+                    {
+                        dataField: "correctAnswer",
+                        editorType: "dxRadioGroup",
+                        editorOptions: {
+                            items: choices.map((choice, index) => ({
+                                id: isUpdate ? choice.choiceId : choice.id,
+                                text: `Choice ${String.fromCharCode(65 + index)}`
+                            })),
+                            valueExpr: "id",
+                            displayExpr: "text",
+                            layout: "horizontal",
+                            value: choices.find(choice => choice.isCorrect)?.[isUpdate ? "choiceId" : "id"] || "",
+                            onValueChanged: function (e) {
+                                choices.forEach(choice => {
+                                    choice.isCorrect = (isUpdate ? choice.choiceId : choice.id) === e.value;
+                                });
+
+                                choices.forEach((choice, index) => {
+                                    $(`input[name="[${questionCount - 1}].Choices[${index}].ChoiceText"]`).val(choice.choiceText);
+                                    $(`input[name="[${questionCount - 1}].Choices[${index}].IsCorrect"]`).val(choice.isCorrect);
+                                });
+                            }
+                        },
+                        label: { text: "Correct Answer" },
+                        isRequired: true,
+                        validationRules: [{ type: "required", message: "Select the correct answer" }]
+                    }
+                ]
             }).dxForm("instance");
 
-            formInstance.getEditor("questionText").on("valueChanged", function(e) {
+            formInstance.getEditor("questionText").on("valueChanged", function (e) {
                 $(`input[name="[${questionCount - 1}].QuestionText"]`).val(e.value);
+            });
+
+            choices.forEach((choice, index) => {
+                const choiceField = `choices[${index}].choiceText`;
+                const editor = formInstance.getEditor(choiceField);
+                if (editor) {
+                    editor.on("valueChanged", function (e) {
+                        $(`input[name="[${questionCount - 1}].Choices[${index}].ChoiceText"]`).val(e.value);
+                        choice.choiceText = e.value;
+                    });
+                }
             });
 
             $(`#remove-question-${questionCount}`).dxButton({
@@ -173,10 +206,13 @@
 
         function calculateTotalMarks() {
             let totalMarks = 0;
-            $(".dx-form").each(function () {
-                let formInstance = $(this).dxForm("instance");
-                totalMarks += formInstance.option("formData").marks || 0;
+            $(".card").each(function () {
+                let formInstance = $(this).find(".dx-form").dxForm("instance");
+                if (formInstance) {
+                    totalMarks += formInstance.option("formData").marks || 0;
+                }
             });
+            console.log("Total Marks Calculated:", totalMarks);
             return totalMarks;
         }
 
@@ -197,6 +233,10 @@
                 text: "Add",
                 type: "default",
                 onClick: function () {
+                    if (!validateAllForms()) {
+                        toastr.error("Please fill in all required fields before adding.");
+                        return;
+                    }
                     addQuestionForm(true);
                 }
             });
@@ -211,24 +251,29 @@
                         return;
                     }
 
-                    // Submit the form when everything is valid
                     $("#form-container").submit();
                 }
             });
 
-            addQuestionForm();
+            if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
+                existingQuestions.forEach(q => {
+                    addQuestionForm(false, q);
+                });
+            } else {
+                addQuestionForm(false);
+            }
+
             toggleAddButton();
         });
 
         function toggleAddButton() {
-            let remainingMarks = marksDifference - calculateTotalMarks();
-            let addButton = $("#add-question").dxButton("instance");
-            if (remainingMarks <= 0) {
-                toastr.error("No remaining marks available to add another question.");
-                addButton.option("disabled", true);
-            } else {
-                addButton.option("disabled", false);
-            }
-        }
+                   let remainingMarks = getCurrentMarksDifference();
+                   let addButton = $("#add-question").dxButton("instance");
+                   if (remainingMarks <= 0) {
+                       addButton.option("disabled", true);
+                   } else {
+                       addButton.option("disabled", false);
+                   }
+               }
     </script>
 }

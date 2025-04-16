@@ -38,6 +38,7 @@
         @foreach (var type in Model)
         {
             var isAnswered = type.IsAnswered;
+            var hasExpired = type.EndDate < DateTime.Now;
 
             <div class="col-md-3 col-sm-6 mb-4">
                 <div class="card shadow-lg border-0 rounded-lg bg-white text-center p-4">
@@ -59,6 +60,10 @@
                                     View Result
                                 </button>
                             }
+                            else if (hasExpired)
+                            {
+                                <span class="text-danger">Unattended</span>
+                            }
                             else
                             {
                                 <a asp-action="Index" asp-controller="Answer" asp-route-questionTypeId="@type.QuestionTypeId"
@@ -75,10 +80,7 @@
     </div>
 </div>
 
-
-    @Html.Partial("_ResultPopup")
-
-
+@Html.Partial("_ResultPopup")
 
 @section Scripts {
     <script>
@@ -87,7 +89,7 @@
             $(".view-result-btn").click(function () {
                 var studentId = $(this).data("studentid");
                 var questionTypeId = $(this).data("questiontypeid");
-                var url="../GetResultDetail/";
+                var url = "../GetResultDetail/";
 
                 loadResultContent(studentId, questionTypeId, url);
             });
@@ -95,8 +97,3 @@
         });
     </script>
 }
-
-
-
-
-

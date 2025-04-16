@@ -41,27 +41,53 @@ namespace StudyLink.Application.Services.Implementation
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
             int questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
 
-            int marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
-            int totalMarks = addQuestionVm.Sum(q => q.Marks);
+            var questionType = await _questionTypeService.GetById(questionTypeId);
+            int fullMarks = questionType.FullMarks;
 
-            if (marksDifference - totalMarks < 0)
+            int totalMarks = addQuestionVm.Sum(q => q.Marks);
+            if (fullMarks > totalMarks)
             {
                 return -1;
             }
 
-            var newQuestions = _mapper.Map<List<Question>>(addQuestionVm);
+            var questionsToAdd = new List<Question>();
+            var questionsToUpdate = new List<Question>();
 
-            foreach (var q in newQuestions)
+            foreach (var vm in addQuestionVm)
             {
-                q.TeacherId = teacherId;
-                q.SubjectId = subjectId;
-                q.QuestionTypeId = questionTypeId;
+                Question question;
+
+                if (vm.QuestionId > 0)
+                {
+                    var existingQuestion = await _unitOfWork.Questions.GetAsync(x => x.QuestionId == vm.QuestionId);
+                    if (existingQuestion == null) continue;
+
+                    _mapper.Map(vm, existingQuestion);
+                    question = existingQuestion;
+                    questionsToUpdate.Add(question);
+                }
+                else
+                {
+                    question = _mapper.Map<Question>(vm);
+                    questionsToAdd.Add(question);
+                }
+
+                question.TeacherId = teacherId;
+                question.SubjectId = subjectId;
+                question.QuestionTypeId = questionTypeId;
             }
 
-            await _unitOfWork.Questions.AddRangeAsync(newQuestions);
+            if (questionsToAdd.Any())
+                await _unitOfWork.Questions.AddRangeAsync(questionsToAdd);
+
+            if (questionsToUpdate.Any())
+                await _unitOfWork.Questions.UpdateRangeAsync(questionsToUpdate);
+
             await _unitOfWork.CompleteAsync();
             return 1;
         }
+
+
 
 
         public async Task Delete(int id)
@@ -87,6 +113,23 @@ namespace StudyLink.Application.Services.Implementation
                 q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId,
                 includeProperties: "Choices"
             );
+        }
+
+        public async Task<List<AddQuestionVM>> GetListForAddQuestion(int questionTypeId)
+        {
+            if (questionTypeId > 0)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+            }
+            int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+            questionTypeId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("QuestionTypeId"));
+
+            var questions= await _unitOfWork.Questions.GetAllAsync(
+                q => q.SubjectId == subjectId && q.QuestionTypeId == questionTypeId,
+                includeProperties: "Choices"
+            );
+
+            return _mapper.Map<List<AddQuestionVM>>(questions);
         }
 
         public async Task<IEnumerable<AddAnswerVM>> GetListForAnswer(int questionTypeId)

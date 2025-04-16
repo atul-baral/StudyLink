@@ -26,7 +26,10 @@ namespace StudyLink.Application.ViewModels
 
         public int Marks { get; set; }
 
-        [JsonIgnore]
-        public ICollection<Choice> Choices { get; set; }
+        //[JsonIgnore]
+        public List<Choice> Choices { get; set; }
+
+        [ValidateNever]
+        public List<QuestionType> QuestionTypes { get; set; }
     }
 }

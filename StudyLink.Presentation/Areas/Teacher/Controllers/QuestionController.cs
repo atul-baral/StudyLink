@@ -46,7 +46,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                 {
                     TempData["MarksDifferenceMessage"] = $"There are still {marksDifference} marks left to be completed for this question type.";
                 }
-                var questions = await _questionService.GetList(questionTypeId);
+                var questions = await _questionService.GetListForAddQuestion(questionTypeId);
                 return View(questions);
             }
             catch (Exception ex)
@@ -57,21 +57,45 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
 
         public async Task<IActionResult> QuestionTypes(int subjectId)
         {
-
-            HttpContext.Session.SetString("SubjectId", subjectId.ToString());
-
+            if (subjectId > 0)
+            {
+                HttpContext.Session.SetString("SubjectId", subjectId.ToString());
+            }
+             subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
             var questionTypes = await _questionTypeService.GetListBySubjectId(subjectId);
             return View(questionTypes);
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int questionTypeId)
         {
-            int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
-            int questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
-            int marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
+            try
+            {
+                if (questionTypeId > 0)
+                {
+                    HttpContext.Session.SetString("QuestionTypeId", questionTypeId.ToString());
+                }
+                int subjectId = int.Parse(HttpContext.Session.GetString("SubjectId"));
+                questionTypeId = int.Parse(HttpContext.Session.GetString("QuestionTypeId"));
+                var marksDifference = await _questionTypeService.GetQuestionMarksDifferenceFromFullMarks(questionTypeId, subjectId);
+                ViewBag.MarksDifference = marksDifference;
 
-            ViewBag.MarksDifference = marksDifference;
-            return View();
+                var questionType = await _questionTypeService.GetById(questionTypeId);
+                ViewBag.FullMarks = questionType.FullMarks;
+                if (marksDifference == 0)
+                {
+                    TempData["MarksDifferenceMessage"] = "No more questions can be added as the full marks have already been covered.";
+                }
+                else
+                {
+                    TempData["MarksDifferenceMessage"] = $"There are still {marksDifference} marks left to be completed for this question type.";
+                }
+                var questions = await _questionService.GetListForAddQuestion(questionTypeId);
+                return View(questions);
+            }
+            catch (Exception ex)
+            {
+                return this.Handle(ex.Message);
+            }
         }
 
 
@@ -91,7 +115,7 @@ namespace StudyLink.Presentation.Areas.Admin.Controllers
                     }
 
                     TempData["Success"] = "Question created successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(QuestionTypes));
                 }
                 return View(addQuestionVm);
             }
