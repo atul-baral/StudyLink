@@ -45,7 +45,7 @@ namespace StudyLink.Application.Services.Implementation
             int fullMarks = questionType.FullMarks;
 
             int totalMarks = addQuestionVm.Sum(q => q.Marks);
-            if (fullMarks > totalMarks)
+            if (fullMarks < totalMarks)
             {
                 return -1;
             }

@@ -26,6 +26,8 @@ namespace StudyLink.Application.ViewModels
 
         public int Marks { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         //[JsonIgnore]
         public List<Choice> Choices { get; set; }
 

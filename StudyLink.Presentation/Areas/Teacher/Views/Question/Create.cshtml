@@ -53,6 +53,7 @@
                         <div id="dx-form-${questionCount}"></div>
                         <!-- Hidden fields for QuestionId and Marks -->
                         <input type="hidden" name="[${questionCount - 1}].QuestionId" value="${isUpdate ? questionData.questionId : 0}" />
+                        <input type="hidden" name="[${questionCount - 1}].IsDeleted" value="false" class="is-deleted-flag" />
                         <input type="hidden" name="[${questionCount - 1}].Marks" value="${isUpdate ? questionData.marks : 1}" />
                         <input type="hidden" name="[${questionCount - 1}].QuestionText" value="${isUpdate ? questionData.questionText : ""}" />
 
@@ -193,7 +194,10 @@
                 type: "danger",
                 onClick: function () {
                     if ($(".card").length > 1) {
-                        $(`#${questionFormId}`).remove();
+                        // $(`#${questionFormId}`).remove();
+                         $(`#${questionFormId}`).hide(); 
+                         $(`#${questionFormId}`).find(".is-deleted-flag").val("true");
+
                         toggleAddButton();
                     } else {
                         toastr.error("At least one question is required.");
@@ -207,21 +211,28 @@
         function calculateTotalMarks() {
             let totalMarks = 0;
             $(".card").each(function () {
-                let formInstance = $(this).find(".dx-form").dxForm("instance");
-                if (formInstance) {
-                    totalMarks += formInstance.option("formData").marks || 0;
+                const isDeleted = $(this).find(".is-deleted-flag").val() === "true";
+                if (!isDeleted) {
+                    let formInstance = $(this).find(".dx-form").dxForm("instance");
+                    if (formInstance) {
+                        totalMarks += formInstance.option("formData").marks || 0;
+                    }
                 }
             });
-            console.log("Total Marks Calculated:", totalMarks);
+            console.log("Total Marks Calculated (excluding deleted):", totalMarks);
             return totalMarks;
         }
+
 
         function validateAllForms() {
             let isValid = true;
             $(".dx-form").each(function () {
-                let formInstance = $(this).dxForm("instance");
-                if (!formInstance.validate().isValid) {
-                    isValid = false;
+               const isDeleted = $(this).find(".is-deleted-flag").val() === "true";
+                    if (!isDeleted) {
+                    let formInstance = $(this).dxForm("instance");
+                    if (!formInstance.validate().isValid) {
+                        isValid = false;
+                    }
                 }
             });
             return isValid;
@@ -241,19 +252,41 @@
                 }
             });
 
-            $("#submit-questions").dxButton({
-                icon: "save",
-                text: "Save",
-                type: "success",
-                onClick: function () {
-                    if (!validateAllForms()) {
-                        toastr.error("Please fill in all required fields before submitting.");
-                        return;
-                    }
-
-                    $("#form-container").submit();
+                    $("#submit-questions").dxButton({
+            icon: "save",
+            text: "Save",
+            type: "success",
+            onClick: function () {
+                if (!validateAllForms()) {
+                    toastr.error("Please fill in all required fields before submitting.");
+                    return;
                 }
-            });
+
+                $(".dx-form").each(function (index) {
+                    const formInstance = $(this).dxForm("instance");
+                    const data = formInstance.option("formData");
+
+                    console.log(`Form ${index + 1} Data:`, data);
+
+                    // Update hidden inputs for this form
+                    const questionIndex = index;
+
+                    $(`input[name="[${questionIndex}].QuestionText"]`).val(data.questionText);
+                    $(`input[name="[${questionIndex}].Marks"]`).val(data.marks);
+
+                    if (data.choices && Array.isArray(data.choices)) {
+                        data.choices.forEach((choice, cIndex) => {
+                            $(`input[name="[${questionIndex}].Choices[${cIndex}].ChoiceText"]`).val(choice.choiceText);
+                            $(`input[name="[${questionIndex}].Choices[${cIndex}].IsCorrect"]`).val(choice.isCorrect);
+                        });
+                    }
+                });
+
+                // Submit the main form after syncing hidden fields
+                $("#form-container").submit();
+            }
+        });
+
 
             if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
                 existingQuestions.forEach(q => {
