@@ -145,6 +145,7 @@ namespace StudyLink.Application.Services.Implementation
             foreach (var vm in addAnswerVMList)
             {
                 vm.Duration = questions.First().QuestionType.Duration;
+                vm.TypeName = questions.First().QuestionType.TypeName;
             }
             return addAnswerVMList;
         }

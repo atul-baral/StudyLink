@@ -43,6 +43,12 @@ builder.Services.AddHangfire(config =>
 
 builder.Services.AddHangfireServer();
 
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
+{
+    opt.TokenLifespan = TimeSpan.FromHours(3);
+});
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

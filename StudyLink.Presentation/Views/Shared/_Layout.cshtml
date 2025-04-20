@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Spiral_Project.styles.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/Spiral_Project.styles.css" asp-append-version="true" /> *@
     <link href="https://cdn3.devexpress.com/jslib/24.2.3/css/dx.light.css" rel="stylesheet">
     <style>
         /* BODY */
@@ -55,7 +55,10 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main">
+            <div class="notification-container">
+                <partial name="_Notification" />
+            </div>
             @RenderBody()
         </main>
     </div>
