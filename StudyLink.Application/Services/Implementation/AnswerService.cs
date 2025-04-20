@@ -181,6 +181,8 @@ namespace StudyLink.Application.Services.Implementation
                         StudentId = studentId,
                         StudentName = studentName,
                         MarksObtained = marksObtained,
+                        FullMarks = questionType.FullMarks,
+                        PassMarks = questionType.PassMarks,
                         IsPass = isPass
                     });
                 }
@@ -226,6 +228,7 @@ namespace StudyLink.Application.Services.Implementation
             {
                 QuestionId = answer.Question.QuestionId,
                 QuestionText = answer.Question.QuestionText,
+                Marks = answer.Question.Marks,
                 Choices = answer.Question.Choices.Select(c => new ResultChoiceVM
                 {
                     ChoiceId = c.ChoiceId,

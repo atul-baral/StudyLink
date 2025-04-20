@@ -194,9 +194,15 @@
                 type: "danger",
                 onClick: function () {
                     if ($(".card").length > 1) {
-                        // $(`#${questionFormId}`).remove();
-                         $(`#${questionFormId}`).hide(); 
-                         $(`#${questionFormId}`).find(".is-deleted-flag").val("true");
+                        const $formCard = $(`#${questionFormId}`);
+                        const questionId = $formCard.find(`input[name="[${questionCount - 1}].QuestionId"]`).val();
+
+                        if (questionId && parseInt(questionId) > 0) {
+                            $formCard.hide();
+                            $formCard.find(".is-deleted-flag").val("true");
+                        } else {
+                            $formCard.remove();
+                        }
 
                         toggleAddButton();
                     } else {
@@ -204,6 +210,7 @@
                     }
                 }
             });
+
 
             toggleAddButton();
         }
@@ -223,12 +230,13 @@
             return totalMarks;
         }
 
-
         function validateAllForms() {
             let isValid = true;
             $(".dx-form").each(function () {
-               const isDeleted = $(this).find(".is-deleted-flag").val() === "true";
-                    if (!isDeleted) {
+                const $parentCard = $(this).closest(".card");
+                const isDeleted = $parentCard.find(".is-deleted-flag").val() === "true";
+
+                if (!isDeleted && $parentCard.is(":visible")) {
                     let formInstance = $(this).dxForm("instance");
                     if (!formInstance.validate().isValid) {
                         isValid = false;
@@ -237,6 +245,7 @@
             });
             return isValid;
         }
+
 
         $(document).ready(function () {
             $("#add-question").dxButton({
@@ -268,7 +277,6 @@
 
                     console.log(`Form ${index + 1} Data:`, data);
 
-                    // Update hidden inputs for this form
                     const questionIndex = index;
 
                     $(`input[name="[${questionIndex}].QuestionText"]`).val(data.questionText);
@@ -282,7 +290,6 @@
                     }
                 });
 
-                // Submit the main form after syncing hidden fields
                 $("#form-container").submit();
             }
         });

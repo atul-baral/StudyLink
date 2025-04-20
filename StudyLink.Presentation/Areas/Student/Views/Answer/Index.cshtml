@@ -32,7 +32,8 @@
         let userAnswers = {};
         let currentQuestionIndex = 0;
         let countdownTimer;
-        let timeLeftInSeconds = 10; // 10 second
+        let timeLeftInMinutes = parseFloat(parseFloat(questions[0].duration).toFixed(2));
+        let timeLeftInSeconds = Math.round(timeLeftInMinutes * 60); 
         let popupInstance;
 
         function updateTimer() {
@@ -47,6 +48,7 @@
                 timeLeftInSeconds--;
             }
         }
+
 
         function startTimer() {
             countdownTimer = setInterval(updateTimer, 1000);
@@ -76,22 +78,48 @@
             $("#popup-message-text").text(message);
 
             if (isTimeUp) {
-                popupInstance.option({
-                    contentTemplate: function () {
-                        let contentDiv = $("<div>").append(
-                            $("<h4>").text(title),
-                            $("<p>").text(message)
-                        );
-                        return contentDiv;
-                    },
-                    showCloseButton: false
+                       popupInstance.option({
+            contentTemplate: function () {
+                let contentDiv = $("<div>").css({
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    justifyContent: "space-between"
                 });
 
-                setTimeout(function() {
-                    setUnansweredQuestionsToZero();
-                    saveAnswers();
-                    window.isSubmitted = true;
-                }, 10000);
+                let messageDiv = $("<div>").append(
+                    $("<h4>").text(title),
+                    $("<p>").text(message)
+                );
+
+                let buttonContainer = $("<div>").css({
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginTop: "auto" 
+                }).append(
+                    $("<div>").dxButton({
+                        text: "OK",
+                        type: "default",
+                        stylingMode: "contained",
+                        onClick: function () {
+                            window.location.href = '@Url.Action("ListQuestionTypesWithResult", "Answer")';
+                        }
+                    })
+                );
+
+                contentDiv.append(messageDiv, buttonContainer);
+                return contentDiv;
+            },
+            showCloseButton: false
+        });
+
+
+
+                // setTimeout(function() {
+                //     setUnansweredQuestionsToZero();
+                //     saveAnswers();
+                //     window.isSubmitted = true;
+                // }, 10000);
             }
             else {
                 popupInstance.option("contentTemplate", function () {
@@ -120,9 +148,35 @@
             popupInstance.option("visible", true);
         }
 
+        // function handleTimeout() {
+        //     showPopup("Time's up!", "Your time has expired. The quiz will be submitted automatically.", true);
+        // }
+
         function handleTimeout() {
-            showPopup("Time's up!", "Your time has expired. The quiz will be submitted automatically.", true);
+            setUnansweredQuestionsToZero();
+
+            let form = $("#quiz-form");
+            form.find("input[type=hidden]").remove();
+
+            questions.forEach((question, index) => {
+                form.append(`<input type="hidden" name="[${index}].QuestionId" value="${question.questionId}" />`);
+                form.append(`<input type="hidden" name="[${index}].Answer.ChoiceId" value="${userAnswers[question.questionId]}" />`);
+            });
+
+            $.ajax({
+                url: '@Url.Action("AddAnswer", "Answer")',
+                type: 'POST',
+                data: form.serialize(), // key point: serialize the form
+                success: function () {
+                    showPopup("Time's up!", "Your time has expired. The quiz was submitted automatically.", true);
+                },
+                error: function (err) {
+                    console.error("Submission failed", err);
+                }
+            });
         }
+
+
 
         function handleIncompleteAnswers() {
             showPopup("Incomplete Answers", "You have unanswered questions, but we will submit them for you.");

@@ -13,37 +13,29 @@
         @foreach (var question in Model.Select((q, index) => new { Question = q, Index = index + 1 }))
         {
             <div class="mb-4 p-3 border rounded">
-                <h5>Question @question.Index: @question.Question.QuestionText</h5>
-                <div class="row mt-2">
-                    <div class="col-md-6">
-                        <ul class="list-group">
-                            @foreach (var choice in question.Question.Choices.Take(2).ToList())
-                            {
-                                <li class="list-group-item @(choice.IsCorrect ? "list-group-item-success font-weight-bold" : "")">
-                                    <strong>@GetChoiceLabel(question.Question.Choices.ToList().IndexOf(choice))</strong>: @choice.ChoiceText
-                                    @if (choice.IsCorrect)
-                                    {
-                                        <span class="badge bg-success ms-2">Correct</span>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                <h5>
+                    Question @question.Index: @question.Question.QuestionText
+                    @if (question.Question.Marks > 0)
+                    {
+                        <span class="text-muted float-end">(Marks: @question.Question.Marks)</span>
+                    }
+                </h5>
 
-                    <div class="col-md-6">
-                        <ul class="list-group">
-                            @foreach (var choice in question.Question.Choices.Skip(2).ToList())
-                            {
-                                <li class="list-group-item @(choice.IsCorrect ? "list-group-item-success font-weight-bold" : "")">
-                                    <strong>@GetChoiceLabel(question.Question.Choices.ToList().IndexOf(choice))</strong>: @choice.ChoiceText
-                                    @if (choice.IsCorrect)
-                                    {
-                                        <span class="badge bg-success ms-2">Correct</span>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                <div class="row mt-2">
+                    @foreach (var choice in question.Question.Choices.Select((c, i) => new { Choice = c, Index = i }))
+                    {
+                        var label = GetChoiceLabel(choice.Index);
+                        var cssClass = choice.Choice.IsCorrect ? "list-group-item-success font-weight-bold" : "";
+                        <div class="col-md-6 mb-2">
+                            <div class="list-group-item @cssClass">
+                                <strong>@label</strong>: @choice.Choice.ChoiceText
+                                @if (choice.Choice.IsCorrect)
+                                {
+                                    <span class="badge bg-success ms-2">Correct</span>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         }
@@ -57,13 +49,6 @@ else
 @functions {
     public string GetChoiceLabel(int index)
     {
-        return index switch
-        {
-            0 => "A",
-            1 => "B",
-            2 => "C",
-            3 => "D",
-            _ => ""
-        };
+        return ((char)('A' + index)).ToString(); // Dynamically returns A, B, C, D, etc.
     }
 }

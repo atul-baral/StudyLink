@@ -135,11 +135,18 @@ namespace StudyLink.Application.Services.Implementation
         public async Task<IEnumerable<AddAnswerVM>> GetListForAnswer(int questionTypeId)
         {
             int subjectId = int.Parse(_httpContextAccessor.HttpContext.Session.GetString("SubjectId"));
+
             var questions = await _unitOfWork.Questions.GetAllAsync(
                 q => q.QuestionTypeId == questionTypeId && q.SubjectId == subjectId,
-                includeProperties: "Choices"
+                includeProperties: "Choices,QuestionType"
             );
-            return _mapper.Map<List<AddAnswerVM>>(questions);
+
+            var addAnswerVMList = _mapper.Map<List<AddAnswerVM>>(questions);
+            foreach (var vm in addAnswerVMList)
+            {
+                vm.Duration = questions.First().QuestionType.Duration;
+            }
+            return addAnswerVMList;
         }
 
         public async Task<Question> GetById(int id)

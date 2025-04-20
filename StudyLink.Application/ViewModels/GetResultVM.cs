@@ -10,6 +10,7 @@ namespace StudyLink.Application.ViewModels
     {
         public int QuestionId { get; set; }
         public string QuestionText { get; set; }
+        public int Marks { get; set; }
         public ICollection<ResultChoiceVM> Choices { get; set; }
 
         public AnswerVM Answer { get; set; } = new AnswerVM();

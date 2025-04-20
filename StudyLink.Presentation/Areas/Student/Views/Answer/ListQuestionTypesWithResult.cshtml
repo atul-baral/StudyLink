@@ -89,7 +89,7 @@
             $(".view-result-btn").click(function () {
                 var studentId = $(this).data("studentid");
                 var questionTypeId = $(this).data("questiontypeid");
-                var url = "../GetResultDetail/";
+                var url = "/Student/Answer/GetResultDetail";
 
                 loadResultContent(studentId, questionTypeId, url);
             });

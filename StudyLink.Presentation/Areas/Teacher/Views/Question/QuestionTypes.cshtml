@@ -105,7 +105,7 @@
                 type: "GET",
                 data: { questionTypeId: questionTypeId },
                 dataType: "json",
-                success: function(response) {
+                success: function (response) {
                     if (response && response.success && Array.isArray(response.data)) {
                         let htmlContent = buildQuestionHtml(response.data);
                         showQuestionPopup(htmlContent);
@@ -114,7 +114,7 @@
                         alert("Failed to load question data.");
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error("AJAX Error:", status, error);
                     console.error("Response Text:", xhr.responseText);
                 }
@@ -123,17 +123,19 @@
 
         function buildQuestionHtml(data) {
             let htmlContent = "";
-            let choiceLabels = ["A", "B", "C", "D"];
             data.forEach((question, qIndex) => {
                 htmlContent += `
                     <div class="card mb-4 border-0 shadow-sm">
                         <div class="card-body">
-                            <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                                <span class="text-muted fst-italic">(Marks: ${question.marks ?? 0})</span>
+                            </div>
                             <div class="row g-2">
                 `;
 
                 question.choices.forEach((choice, i) => {
-                    let choiceLabel = choiceLabels[i];
+                    let choiceLabel = String.fromCharCode(65 + i); // A, B, C, ...
                     let isCorrect = choice.isCorrect;
                     let cssClass = isCorrect ? "list-group-item-success" : "list-group-item-light";
                     let truncatedChoiceText = truncateText(choice.choiceText, 20);
@@ -169,7 +171,7 @@
                 visible: false,
                 closeOnOutsideClick: true,
                 showCloseButton: true,
-                contentTemplate: function(contentElement) {
+                contentTemplate: function (contentElement) {
                     contentElement.append('<div id="questionContentWrapper" style="max-height: 80vh; overflow-y: auto;"><div id="questionContent"></div></div>');
                 }
             }).dxPopup("instance");

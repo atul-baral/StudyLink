@@ -21,12 +21,22 @@
                     alignment: "left"
                 },
                 {
-                    dataField: "marksObtained",
-                    caption: "Marks Obtained",
+                    dataField: "fullMarks",
+                    caption: "FM",
                     alignment: "left"
                 },
                 {
-                    dataField: "IsPass",
+                    dataField: "passMarks",
+                    caption: "PM",
+                    alignment: "left"
+                }, 
+                {
+                    dataField: "marksObtained",
+                    caption: "OM",
+                    alignment: "left"
+                },
+                {
+                    dataField: "isPass",
                     caption: "Status",
                     cellTemplate: function (container, options) {
                         $("<span>")
@@ -43,7 +53,7 @@
                             onClick: function (e) {
                                 var studentId = e.row.data.studentId;
                                 var questionTypeId = @Model.QuestionTypeId;
-                                var url="GetResultDetail/";
+                                var url="/Teacher/Question/GetResultDetail/";
 
                                 loadResultContent(studentId, questionTypeId, url);
                             },

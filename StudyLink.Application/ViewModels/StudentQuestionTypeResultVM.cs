@@ -18,9 +18,9 @@ namespace StudyLink.Application.ViewModels
     {
         public int StudentId { get; set; }
         public string StudentName { get; set; }
+        public int FullMarks { get; set; }
+        public int PassMarks { get; set; }
         public int MarksObtained { get; set; }
         public bool IsPass { get; set; }
     }
-
-
 }

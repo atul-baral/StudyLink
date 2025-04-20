@@ -1,4 +1,10 @@
-﻿<div id="resultPopup" style="display: none;">
+﻿<style>
+    #resultPopup .badge {
+        font-size: 0.8rem;
+    }
+</style>
+
+<div id="resultPopup" style="display: none;">
     <div id="resultContentWrapper" style="max-height: 80vh; overflow-y: auto;">
         <div id="resultContent"></div>
     </div>
@@ -29,7 +35,6 @@
 
     function buildResultHtml(data) {
         let htmlContent = "";
-        let choiceLabels = ["A", "B", "C", "D"];
 
         data.forEach((question, qIndex) => {
             let isUnanswered = !question.answer || question.answer.choiceId === null;
@@ -37,28 +42,29 @@
             htmlContent += `
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-body position-relative">
-            `;
-
-            if (isUnanswered) {
-                htmlContent += `
-                    <span class="badge bg-warning position-absolute top-0 end-0 m-2">Unanswered</span>
-                `;
-            }
-
-            htmlContent += `
-                <h5 class="mb-3 fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
-                <div class="row g-2">
+                        <div class="mb-3 row">
+                            <div class="col-md-9">
+                                <h5 class="fw-bold">Q${qIndex + 1}. ${question.questionText}</h5>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                ${isUnanswered ? `<div><span class="badge bg-warning mb-1">Unanswered</span></div>` : ""}
+                                <div><span class="text-muted fst-italic">(Marks: ${question.marks ?? 0})</span></div>
+                            </div>
+                        </div>
+                        <div class="row g-2">
             `;
 
             question.choices.forEach((choice, i) => {
-                let choiceLabel = i < choiceLabels.length ? choiceLabels[i] : String.fromCharCode(65 + i);
+                let choiceLabel = String.fromCharCode(65 + i); // A, B, C...
                 let isUserAnswer = question.answer && question.answer.choiceId === choice.choiceId;
                 let isCorrect = choice.isCorrect;
+
                 let cssClass =
                     isUserAnswer && isCorrect ? "list-group-item-success" :
                     isUserAnswer && !isCorrect ? "list-group-item-danger" :
                     !isUserAnswer && isCorrect ? "list-group-item-primary" :
                     "list-group-item-light";
+
                 let truncatedChoiceText = truncateText(choice.choiceText, 20);
 
                 htmlContent += `
@@ -83,8 +89,8 @@
             });
 
             htmlContent += `
-                </div>
-                </div>
+                        </div>
+                    </div>
                 </div>
             `;
         });
